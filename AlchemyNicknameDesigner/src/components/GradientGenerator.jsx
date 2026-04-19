@@ -142,8 +142,12 @@ const GradientStopBar = ({ stops, setStops, barRef, draggingId, onDragStart, onB
 
 // --- Main Component ---
 
-const GradientGenerator = ({ playerInfo }) => {
-    const [text, setText] = useState(playerInfo?.name || 'Steve');
+const GradientGenerator = ({ playerInfo, currentNickname, initialText }) => {
+    const [text, setText] = useState(initialText || playerInfo?.name || 'Steve');
+
+    useEffect(() => {
+        if (initialText) setText(initialText);
+    }, [initialText]);
 
     const [colors, setColors] = useState([
         makeStop('#BFFCC6', 0),
@@ -179,7 +183,7 @@ const GradientGenerator = ({ playerInfo }) => {
     const [saveStatus, setSaveStatus] = useState(null);
     const [copied, setCopied]         = useState(false);
 
-    useEffect(() => { if (playerInfo?.name) setText(playerInfo.name); }, [playerInfo]);
+    useEffect(() => { if (initialText) setText(initialText); else if (playerInfo?.name) setText(playerInfo.name); }, [playerInfo, initialText]);
 
     useEffect(() => {
         const cached = localStorage.getItem(CACHE_KEY);
@@ -485,13 +489,19 @@ const GradientGenerator = ({ playerInfo }) => {
                         {playerInfo?.name ? (
                             <div className="flex items-center gap-3 mb-3">
                                 <img src={`https://mc-heads.net/avatar/${playerInfo.name}/32`} alt="Avatar" className="w-8 h-8 rounded"/>
-                                <div>
+                                <div className="flex-1 min-w-0">
                                     <div className="text-[10px] text-[var(--text-secondary)] uppercase">Logged in as</div>
                                     <div className="font-bold">{playerInfo.name}</div>
                                 </div>
                             </div>
                         ) : (
                             <p className="text-sm text-[var(--accent-red)] mb-3">Run <code>/nicknameeditor</code> in-game to get a link.</p>
+                        )}
+                        {currentNickname && (
+                            <div className="mb-3 p-2 rounded-lg bg-[var(--bg-input)] border border-[var(--border-color)]">
+                                <div className="text-[10px] text-[var(--text-secondary)] uppercase mb-1">Current Nickname</div>
+                                <div className="text-xs font-mono text-[var(--text-secondary)] break-all">{currentNickname}</div>
+                            </div>
                         )}
                         <button onClick={handleSave} disabled={saving || !playerInfo?.token}
                             className="birdflop-btn-blue w-full py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">

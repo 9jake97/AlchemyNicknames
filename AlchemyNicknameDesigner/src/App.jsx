@@ -77,8 +77,30 @@ function CodeEntryForm({ onSubmit }) {
   );
 }
 
+// Strip MiniMessage/legacy tags to get plain text
+function stripTags(nick) {
+  if (!nick) return '';
+  return nick
+    .replace(/<[^>]+>/g, '')       // MiniMessage tags
+    .replace(/&#[0-9A-Fa-f]{6}/g, '') // &#RRGGBB
+    .replace(/&[0-9a-fk-or]/gi, '') // legacy & codes
+    .trim();
+}
+
 function App() {
   const [playerInfo, setPlayerInfo] = useState(null);
+  const [currentNickname, setCurrentNickname] = useState(null);
+
+  const fetchCurrentNickname = async (info) => {
+    if (!info?.token || !info?.apiBase) return;
+    try {
+      const res = await fetch(`${info.apiBase}/api/nickname/current?token=${info.token}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.nickname) setCurrentNickname(data.nickname);
+      }
+    } catch {}
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -86,23 +108,30 @@ function App() {
     const token = params.get('token') || '';
     const apiBase = params.get('api') || '';
     if (player && token) {
-      setPlayerInfo({ name: player, token, apiBase });
+      const info = { name: player, token, apiBase };
+      setPlayerInfo(info);
+      fetchCurrentNickname(info);
     }
   }, []);
 
-  // No URL params — show code entry form
+  const handleCodeEntry = (name, code) => {
+    const info = { name, token: code, apiBase: '' };
+    setPlayerInfo(info);
+    fetchCurrentNickname(info);
+  };
+
   if (!playerInfo) {
-    return (
-      <CodeEntryForm
-        onSubmit={(name, code) => setPlayerInfo({ name, token: code, apiBase: '' })}
-      />
-    );
+    return <CodeEntryForm onSubmit={handleCodeEntry} />;
   }
 
   return (
     <div className="min-h-screen p-4 md:p-8 flex justify-center">
       <div className="w-full max-w-6xl">
-        <GradientGenerator playerInfo={playerInfo} />
+        <GradientGenerator
+          playerInfo={playerInfo}
+          currentNickname={currentNickname}
+          initialText={currentNickname ? stripTags(currentNickname) : playerInfo.name}
+        />
       </div>
     </div>
   );

@@ -127,6 +127,19 @@ public class AlchemyNicknames extends JavaPlugin {
 
         server.post("/save", saveHandler);
 
+        server.get("/current", ctx -> {
+            String token = ctx.queryParam("token");
+            if (token == null) { ctx.status(400).result("Missing token"); return; }
+            Session session = sessions.get(token);
+            if (session == null || System.currentTimeMillis() > session.expiresAt()) {
+                ctx.status(401).result("Invalid or expired token"); return;
+            }
+            java.util.UUID uuid = java.util.UUID.fromString(session.uuid());
+            String nick = nicknameManager.getNickname(uuid);
+            ctx.contentType("application/json");
+            ctx.result("{\"nickname\":" + (nick != null ? "\"" + nick.replace("\\", "\\\\").replace("\"", "\\\"") + "\"" : "null") + "}");
+        });
+
         server.start(port);
         
         getLogger().info("Web server started on port " + port);
