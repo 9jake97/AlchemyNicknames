@@ -76,13 +76,6 @@ const TrashIcon = () => (
     </svg>
 );
 
-const Toggle = ({ checked, onChange }) => (
-    <label className="relative inline-flex cursor-pointer items-center flex-shrink-0">
-        <input type="checkbox" className="peer sr-only" checked={checked} onChange={e=>onChange(e.target.checked)}/>
-        <div className="h-6 w-11 rounded-full bg-[var(--bg-input)] peer-checked:bg-[var(--accent-blue)] after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-full"/>
-    </label>
-);
-
 const GradientStopBar = ({ stops, setStops, barRef, draggingId, onDragStart, onBarClick }) => (
     <div>
         <div
@@ -113,7 +106,7 @@ const GradientStopBar = ({ stops, setStops, barRef, draggingId, onDragStart, onB
                     <div className="relative flex-shrink-0">
                         <div className="w-7 h-7 rounded border border-black/20 cursor-pointer" style={{backgroundColor:stop.hex}}/>
                         <input type="color" value={stop.hex}
-                            onChange={e => setStops(prev => prev.map(s => s.id===stop.id ? {...s,hex:e.target.value} : s))}
+                            onChange={e => setStops(prev => prev.map(s => s.id===stop.id ? {...s,hex:e.target.value.toUpperCase()} : s))}
                             className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                         />
                     </div>
@@ -142,48 +135,44 @@ const GradientStopBar = ({ stops, setStops, barRef, draggingId, onDragStart, onB
 
 // --- Main Component ---
 
-const GradientGenerator = ({ playerInfo, currentNickname, initialText }) => {
+const DEFAULT_STOPS = [
+    makeStop('#BFFCC6', 0),
+    makeStop('#FFF5BA', 50),
+    makeStop('#FFC9DE', 100),
+];
+const DEFAULT_FORMATS = { bold:true, italic:false, underline:false, strikethrough:false };
+
+const GradientGenerator = ({ playerInfo, currentNickname, parsedNickname, initialText }) => {
     const [text, setText] = useState(initialText || playerInfo?.name || 'Steve');
-
-    useEffect(() => {
-        if (initialText) setText(initialText);
-    }, [initialText]);
-
-    const [colors, setColors] = useState([
-        makeStop('#BFFCC6', 0),
-        makeStop('#FFF5BA', 50),
-        makeStop('#FFC9DE', 100),
-    ]);
-    const [shadowEnabled, setShadowEnabled] = useState(false);
-    const [shadowColors, setShadowColors] = useState([
-        makeStop('#303F32', 0),
-        makeStop('#403D2F', 50),
-        makeStop('#403238', 100),
-    ]);
-
-    const [formats, setFormats] = useState({ bold:true, italic:false, underline:false, strikethrough:false });
+    const [colors, setColors] = useState(DEFAULT_STOPS);
+    const [formats, setFormats] = useState(DEFAULT_FORMATS);
     const [outputFormat, setOutputFormat] = useState('minimessage');
-    const [disperse, setDisperse] = useState(false);
-    const [trimSpaces, setTrimSpaces] = useState(true);
-    const [lowercase, setLowercase] = useState(false);
-    const [prefixSuffix, setPrefixSuffix] = useState('');
 
     const [uiGradients, setUiGradients] = useState([]);
     const [shownPresets, setShownPresets] = useState([]);
 
     const [draggingId, setDraggingId] = useState(null);
-    const [draggingIsShadow, setDraggingIsShadow] = useState(false);
-    const barRef        = useRef(null);
-    const shadowBarRef  = useRef(null);
-    const dragBarState  = useRef(null);
-    const inputRef      = useRef(null);
-    const renderRef     = useRef(null);
+    const barRef       = useRef(null);
+    const dragBarState = useRef(null);
+    const inputRef     = useRef(null);
+    const renderRef    = useRef(null);
 
     const [saving, setSaving]         = useState(false);
     const [saveStatus, setSaveStatus] = useState(null);
     const [copied, setCopied]         = useState(false);
 
-    useEffect(() => { if (initialText) setText(initialText); else if (playerInfo?.name) setText(playerInfo.name); }, [playerInfo, initialText]);
+    // Initialize from parsed nickname when it becomes available
+    const [initialized, setInitialized] = useState(false);
+    useEffect(() => {
+        if (parsedNickname && !initialized) {
+            setText(parsedNickname.text);
+            setColors(parsedNickname.stops);
+            setFormats(parsedNickname.formats);
+            setInitialized(true);
+        } else if (!initialized && initialText) {
+            setText(initialText);
+        }
+    }, [parsedNickname, initialText, initialized]);
 
     useEffect(() => {
         const cached = localStorage.getItem(CACHE_KEY);
@@ -202,23 +191,21 @@ const GradientGenerator = ({ playerInfo, currentNickname, initialText }) => {
     }, []);
 
     // Drag
-    const startDrag = useCallback((e, id, isShadow) => {
+    const startDrag = useCallback((e, id) => {
         e.preventDefault(); e.stopPropagation();
-        const bar = (isShadow ? shadowBarRef : barRef).current;
-        if (!bar) return;
-        const rect = bar.getBoundingClientRect();
+        if (!barRef.current) return;
+        const rect = barRef.current.getBoundingClientRect();
         dragBarState.current = { barLeft: rect.left, barWidth: rect.width };
-        setDraggingId(id); setDraggingIsShadow(isShadow);
+        setDraggingId(id);
     }, []);
 
     useEffect(() => {
         if (draggingId === null) return;
-        const setter = draggingIsShadow ? setShadowColors : setColors;
         const move = (e) => {
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const { barLeft, barWidth } = dragBarState.current;
             const pos = Math.round(Math.min(100,Math.max(0,((clientX-barLeft)/barWidth)*100))*10)/10;
-            setter(prev => prev.map(c => c.id===draggingId ? {...c,pos} : c));
+            setColors(prev => prev.map(c => c.id===draggingId ? {...c,pos} : c));
         };
         const up = () => setDraggingId(null);
         window.addEventListener('mousemove', move);
@@ -231,27 +218,21 @@ const GradientGenerator = ({ playerInfo, currentNickname, initialText }) => {
             window.removeEventListener('touchmove', move);
             window.removeEventListener('touchend', up);
         };
-    }, [draggingId, draggingIsShadow]);
+    }, [draggingId]);
 
-    const handleBarClick = useCallback((e, isShadow) => {
+    const handleBarClick = useCallback((e) => {
         if (draggingId !== null) return;
-        const bar = (isShadow ? shadowBarRef : barRef).current;
-        if (!bar) return;
-        const rect = bar.getBoundingClientRect();
+        if (!barRef.current) return;
+        const rect = barRef.current.getBoundingClientRect();
         const pos = Math.round(Math.min(100,Math.max(0,((e.clientX-rect.left)/rect.width)*100))*10)/10;
-        const src = isShadow ? shadowColors : colors;
-        const setter = isShadow ? setShadowColors : setColors;
-        setter(prev => [...prev, makeStop(getColorAtProgress(src, pos/100), pos)]);
-    }, [colors, shadowColors, draggingId]);
+        setColors(prev => [...prev, makeStop(getColorAtProgress(colors, pos/100), pos)]);
+    }, [colors, draggingId]);
 
-    // Output (Birdflop direct per-character generation)
+    // Output (Birdflop direct per-character generation, trimSpaces always true)
     const generatedOutput = useMemo(() => {
         if (!text) return '';
         const chars = text.split('');
-        const effectiveColors = disperse
-            ? colors.map((c,i) => ({...c, pos:(i/(colors.length-1))*100}))
-            : colors;
-        const activeCount = trimSpaces ? chars.filter(c=>c!==' ').length : chars.length;
+        const activeCount = chars.filter(c=>c!==' ').length;
 
         const tags = outputFormat === 'minimessage'
             ? [formats.bold&&'<b>', formats.italic&&'<i>', formats.underline&&'<u>', formats.strikethrough&&'<st>'].filter(Boolean).join('')
@@ -260,31 +241,22 @@ const GradientGenerator = ({ playerInfo, currentNickname, initialText }) => {
         let activeIdx = 0;
         let out = '';
         chars.forEach(char => {
-            if (char===' ' && trimSpaces) { out+=' '; return; }
+            if (char===' ') { out+=' '; return; }
             const progress = activeCount>1 ? activeIdx/(activeCount-1) : 0;
-            let hex = getColorAtProgress(effectiveColors, progress);
-            if (lowercase) hex = hex.toLowerCase();
+            const hex = getColorAtProgress(colors, progress);
             out += outputFormat==='minimessage' ? `<${hex}>${tags}${char}` : `&#${hex.slice(1)}${tags}${char}`;
             activeIdx++;
         });
-
-        return prefixSuffix ? prefixSuffix.replace('$t', out) : out;
-    }, [text, colors, formats, outputFormat, disperse, trimSpaces, lowercase, prefixSuffix]);
+        return out;
+    }, [text, colors, formats, outputFormat]);
 
     // Visual preview chars
-    const previewChars = useMemo(() => {
-        const effectiveColors = disperse
-            ? colors.map((c,i) => ({...c, pos:(i/(colors.length-1))*100}))
-            : colors;
-        return text.split('').map((char, i) => {
-            const progress = text.length>1 ? i/(text.length-1) : 0;
-            return {
-                char,
-                hex: getColorAtProgress(effectiveColors, progress),
-                shadowHex: shadowEnabled ? getColorAtProgress(shadowColors, progress) : null,
-            };
-        });
-    }, [text, colors, shadowColors, shadowEnabled, disperse]);
+    const previewChars = useMemo(() =>
+        text.split('').map((char, i) => ({
+            char,
+            hex: getColorAtProgress(colors, text.length>1 ? i/(text.length-1) : 0),
+        }))
+    , [text, colors]);
 
     const previewStyle = useMemo(() => ({
         fontWeight:     formats.bold          ? 'bold'       : 'normal',
@@ -348,7 +320,7 @@ const GradientGenerator = ({ playerInfo, currentNickname, initialText }) => {
                     {previewChars.map((item,i) => (
                         <span key={i} className="inline-block whitespace-pre" style={{
                             color: item.hex,
-                            textShadow: item.shadowHex ? `3px 3px 0px ${item.shadowHex}` : '2px 2px 0 rgba(0,0,0,0.8)',
+                            textShadow: '2px 2px 0 rgba(0,0,0,0.8)',
                             ...previewStyle,
                         }}>{item.char}</span>
                     ))}
@@ -392,47 +364,21 @@ const GradientGenerator = ({ playerInfo, currentNickname, initialText }) => {
                 </div>
             </div>
 
-            {/* MAIN GRID */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* MAIN GRID: 2 columns */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                {/* GRADIENT BUILDERS */}
-                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                    {/* Primary */}
-                    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-4">
-                        <h3 className="font-semibold mb-4">🎨 Primary Colors</h3>
-                        <GradientStopBar
-                            stops={colors} setStops={setColors}
-                            barRef={barRef} draggingId={draggingId}
-                            onDragStart={(e,id)=>startDrag(e,id,false)}
-                            onBarClick={e=>handleBarClick(e,false)}
-                        />
-                    </div>
-
-                    {/* Shadow */}
-                    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-4">
-                        <div className="flex items-center gap-3 mb-4">
-                            <Toggle checked={shadowEnabled} onChange={setShadowEnabled}/>
-                            <h3 className="font-semibold cursor-pointer select-none" onClick={()=>setShadowEnabled(p=>!p)}>
-                                🌑 Text Shadow
-                            </h3>
-                        </div>
-                        {shadowEnabled ? (
-                            <GradientStopBar
-                                stops={shadowColors} setStops={setShadowColors}
-                                barRef={shadowBarRef} draggingId={draggingId}
-                                onDragStart={(e,id)=>startDrag(e,id,true)}
-                                onBarClick={e=>handleBarClick(e,true)}
-                            />
-                        ) : (
-                            <div className="flex items-center justify-center h-32 text-sm text-[var(--text-secondary)] text-center opacity-50 px-4">
-                                Enable to add a shadow gradient behind your nickname.
-                            </div>
-                        )}
-                    </div>
+                {/* PRIMARY COLORS */}
+                <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-4">
+                    <h3 className="font-semibold mb-4">🎨 Colors</h3>
+                    <GradientStopBar
+                        stops={colors} setStops={setColors}
+                        barRef={barRef} draggingId={draggingId}
+                        onDragStart={(e,id)=>startDrag(e,id)}
+                        onBarClick={e=>handleBarClick(e)}
+                    />
                 </div>
 
-                {/* OUTPUT + OPTIONS + SYNC */}
+                {/* OUTPUT + SYNC */}
                 <div className="flex flex-col gap-4">
 
                     {/* Output */}
@@ -444,41 +390,13 @@ const GradientGenerator = ({ playerInfo, currentNickname, initialText }) => {
                             </button>
                         </div>
                         <textarea readOnly value={generatedOutput}
-                            className="w-full h-28 birdflop-input px-3 py-2 text-xs font-mono resize-none"/>
-                    </div>
-
-                    {/* Options */}
-                    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-4">
-                        <h3 className="font-semibold mb-4">⚙️ Options</h3>
-                        <div className="flex flex-col gap-3">
-                            <div>
-                                <label className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide block mb-1">Format</label>
-                                <select value={outputFormat} onChange={e=>setOutputFormat(e.target.value)}
-                                    className="birdflop-input w-full px-3 py-2 text-sm">
-                                    {OUTPUT_FORMATS.map(f=><option key={f.value} value={f.value}>{f.label}</option>)}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide block mb-1">Prefix / Suffix</label>
-                                <input type="text" placeholder="/nick $t" value={prefixSuffix}
-                                    onChange={e=>setPrefixSuffix(e.target.value)}
-                                    className="birdflop-input w-full px-3 py-2 text-sm"/>
-                                <p className="text-xs text-[var(--text-secondary)] mt-0.5">Use <code>$t</code> as the output placeholder.</p>
-                            </div>
-                            <hr className="border-[var(--border-color)]"/>
-                            {[
-                                {key:'disperse',   label:'Always Disperse',  desc:'Ignore stop positions, spread colors evenly.',        val:disperse,   set:setDisperse},
-                                {key:'trimSpaces', label:'Trim Spaces',      desc:"Spaces don't consume gradient spectrum.",             val:trimSpaces, set:setTrimSpaces},
-                                {key:'lowercase',  label:'Lowercase Hex',    desc:'Force hex codes to lowercase.',                       val:lowercase,  set:setLowercase},
-                            ].map(({key,label,desc,val,set})=>(
-                                <label key={key} className="flex items-start gap-3 cursor-pointer select-none">
-                                    <input type="checkbox" checked={val} onChange={e=>set(e.target.checked)} className="mt-0.5 w-4 h-4 flex-shrink-0"/>
-                                    <div>
-                                        <span className="text-sm font-medium">{label}</span>
-                                        <p className="text-xs text-[var(--text-secondary)]">{desc}</p>
-                                    </div>
-                                </label>
-                            ))}
+                            className="w-full h-28 birdflop-input px-3 py-2 text-xs font-mono resize-none mb-3"/>
+                        <div>
+                            <label className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide block mb-1">Format</label>
+                            <select value={outputFormat} onChange={e=>setOutputFormat(e.target.value)}
+                                className="birdflop-input w-full px-3 py-2 text-sm">
+                                {OUTPUT_FORMATS.map(f=><option key={f.value} value={f.value}>{f.label}</option>)}
+                            </select>
                         </div>
                     </div>
 
@@ -496,12 +414,6 @@ const GradientGenerator = ({ playerInfo, currentNickname, initialText }) => {
                             </div>
                         ) : (
                             <p className="text-sm text-[var(--accent-red)] mb-3">Run <code>/nicknameeditor</code> in-game to get a link.</p>
-                        )}
-                        {currentNickname && (
-                            <div className="mb-3 p-2 rounded-lg bg-[var(--bg-input)] border border-[var(--border-color)]">
-                                <div className="text-[10px] text-[var(--text-secondary)] uppercase mb-1">Current Nickname</div>
-                                <div className="text-xs font-mono text-[var(--text-secondary)] break-all">{currentNickname}</div>
-                            </div>
                         )}
                         <button onClick={handleSave} disabled={saving || !playerInfo?.token}
                             className="birdflop-btn-blue w-full py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">

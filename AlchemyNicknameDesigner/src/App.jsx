@@ -77,19 +77,59 @@ function CodeEntryForm({ onSubmit }) {
   );
 }
 
-// Strip MiniMessage/legacy tags to get plain text
 function stripTags(nick) {
   if (!nick) return '';
   return nick
-    .replace(/<[^>]+>/g, '')       // MiniMessage tags
-    .replace(/&#[0-9A-Fa-f]{6}/g, '') // &#RRGGBB
-    .replace(/&[0-9a-fk-or]/gi, '') // legacy & codes
+    .replace(/<[^>]+>/g, '')
+    .replace(/&#[0-9A-Fa-f]{6}/g, '')
+    .replace(/&[0-9a-fk-or]/gi, '')
     .trim();
+}
+
+const makeStop = (hex, pos) => ({ id: Math.random().toString(36).slice(2), hex, pos });
+
+function parseNickname(nick) {
+  if (!nick) return null;
+
+  const chars = [];
+  // MiniMessage per-character: <#RRGGBB>(modifiers)char
+  const mm = /<(#[A-Fa-f0-9]{6})>((?:<[^>]+>)*)([^<])/g;
+  let m;
+  while ((m = mm.exec(nick)) !== null) {
+    chars.push({ color: m[1].toUpperCase(), char: m[3] });
+  }
+
+  // Legacy &#RRGGBB fallback
+  if (chars.length < 2) {
+    const leg = /&#([A-Fa-f0-9]{6})((?:&[lnmok])*)([^&<])/g;
+    while ((m = leg.exec(nick)) !== null) {
+      chars.push({ color: '#' + m[1].toUpperCase(), char: m[3] });
+    }
+  }
+
+  if (chars.length < 2) return null;
+
+  const text = chars.map(c => c.char).join('');
+  const numStops = Math.min(chars.length, 7);
+  const stops = Array.from({ length: numStops }, (_, i) => {
+    const idx = Math.round(i / (numStops - 1) * (chars.length - 1));
+    return makeStop(chars[idx].color, Math.round(i / (numStops - 1) * 100));
+  });
+
+  const formats = {
+    bold:          /<b>|<bold>|&l/i.test(nick),
+    italic:        /<i>|<italic>|&o/i.test(nick),
+    underline:     /<u>|<underlined>|<underline>|&n/i.test(nick),
+    strikethrough: /<st>|<strikethrough>|&m/i.test(nick),
+  };
+
+  return { text, stops, formats };
 }
 
 function App() {
   const [playerInfo, setPlayerInfo] = useState(null);
   const [currentNickname, setCurrentNickname] = useState(null);
+  const parsedNickname = React.useMemo(() => parseNickname(currentNickname), [currentNickname]);
 
   const fetchCurrentNickname = async (info) => {
     if (!info?.token || !info?.apiBase) return;
@@ -130,7 +170,8 @@ function App() {
         <GradientGenerator
           playerInfo={playerInfo}
           currentNickname={currentNickname}
-          initialText={currentNickname ? stripTags(currentNickname) : playerInfo.name}
+          parsedNickname={parsedNickname}
+          initialText={parsedNickname ? parsedNickname.text : (currentNickname ? stripTags(currentNickname) : playerInfo.name)}
         />
       </div>
     </div>
