@@ -1,0 +1,37 @@
+name: AlchemyNicknames
+version: '${project.version}'
+main: com.github.plunk.alchemynicknames.AlchemyNicknames
+api-version: '1.21'
+prefix: 'AlchemyNicknames'
+description: Modern nickname plugin for the Alchemy series.
+authors: [ Plunk ]
+softdepend: [ PlaceholderAPI ]
+commands:
+  nickname:
+    description: Set your nickname.
+    aliases: [ nick ]
+    permission: alchemynicknames.nickname
+  unnick:
+    description: Remove your nickname.
+    permission: alchemynicknames.nickname
+  nickimport:
+    description: Import nicknames from other plugins.
+    permission: alchemynicknames.admin
+    usage: /nickimport <essentials|cmi>
+  nicknameeditor:
+    description: Open the RGB nickname designer
+    usage: /nicknameeditor
+    permission: alchemynicknames.nickname
+permissions:
+  alchemynicknames.nickname:
+    description: Allows a player to change their own nickname.
+    default: op
+  alchemynicknames.others:
+    description: Allows a player to change other players' nicknames.
+    default: op
+  alchemynicknames.colors:
+    description: Allows a player to use colors and gradients in their nickname.
+    default: op
+  alchemynicknames.admin:
+    description: Allows a player to use administrative commands like nickimport.
+    default: op
