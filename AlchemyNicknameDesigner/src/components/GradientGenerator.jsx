@@ -63,11 +63,6 @@ const FORMAT_BUTTONS = [
     { key:'strikethrough', label:'S', title:'Strikethrough', style:{textDecoration:'line-through'} },
 ];
 
-const OUTPUT_FORMATS = [
-    { value:'minimessage', label:'MiniMessage (<#HEX>)' },
-    { value:'legacy',      label:'Legacy (&#HEX)' },
-    { value:'mypet',       label:'Standard (&#RRGGBB)' },
-];
 
 const TrashIcon = () => (
     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,9 +141,7 @@ const GradientGenerator = ({ playerInfo, currentNickname, parsedNickname, initia
     const [text, setText] = useState(initialText || playerInfo?.name || 'Steve');
     const [colors, setColors] = useState(DEFAULT_STOPS);
     const [formats, setFormats] = useState(DEFAULT_FORMATS);
-    const [outputFormat, setOutputFormat] = useState('minimessage');
-
-    const [uiGradients, setUiGradients] = useState([]);
+const [uiGradients, setUiGradients] = useState([]);
     const [shownPresets, setShownPresets] = useState([]);
 
     const [draggingId, setDraggingId] = useState(null);
@@ -159,7 +152,6 @@ const GradientGenerator = ({ playerInfo, currentNickname, parsedNickname, initia
 
     const [saving, setSaving]         = useState(false);
     const [saveStatus, setSaveStatus] = useState(null);
-    const [copied, setCopied]         = useState(false);
 
     // Initialize from parsed nickname when it becomes available
     const [initialized, setInitialized] = useState(false);
@@ -228,27 +220,22 @@ const GradientGenerator = ({ playerInfo, currentNickname, parsedNickname, initia
         setColors(prev => [...prev, makeStop(getColorAtProgress(colors, pos/100), pos)]);
     }, [colors, draggingId]);
 
-    // Output (Birdflop direct per-character generation, trimSpaces always true)
+    // Output (MiniMessage per-character, trimSpaces always true)
     const generatedOutput = useMemo(() => {
         if (!text) return '';
         const chars = text.split('');
         const activeCount = chars.filter(c=>c!==' ').length;
-
-        const tags = outputFormat === 'minimessage'
-            ? [formats.bold&&'<b>', formats.italic&&'<i>', formats.underline&&'<u>', formats.strikethrough&&'<st>'].filter(Boolean).join('')
-            : [formats.bold&&'&l', formats.italic&&'&o', formats.underline&&'&n', formats.strikethrough&&'&m'].filter(Boolean).join('');
-
+        const tags = [formats.bold&&'<b>', formats.italic&&'<i>', formats.underline&&'<u>', formats.strikethrough&&'<st>'].filter(Boolean).join('');
         let activeIdx = 0;
         let out = '';
         chars.forEach(char => {
             if (char===' ') { out+=' '; return; }
             const progress = activeCount>1 ? activeIdx/(activeCount-1) : 0;
-            const hex = getColorAtProgress(colors, progress);
-            out += outputFormat==='minimessage' ? `<${hex}>${tags}${char}` : `&#${hex.slice(1)}${tags}${char}`;
+            out += `<${getColorAtProgress(colors, progress)}>${tags}${char}`;
             activeIdx++;
         });
         return out;
-    }, [text, colors, formats, outputFormat]);
+    }, [text, colors, formats]);
 
     // Visual preview chars
     const previewChars = useMemo(() =>
@@ -279,11 +266,6 @@ const GradientGenerator = ({ playerInfo, currentNickname, parsedNickname, initia
         if (!pick?.colors?.length) return;
         const src = pick.colors.map((hex,i) => ({hex, pos:(i/(pick.colors.length-1))*100}));
         setColors(distributeColors(src, colors.length));
-    };
-
-    const handleCopy = () => {
-        navigator.clipboard.writeText(generatedOutput);
-        setCopied(true); setTimeout(()=>setCopied(false), 2000);
     };
 
     const handleSave = async () => {
@@ -380,25 +362,6 @@ const GradientGenerator = ({ playerInfo, currentNickname, parsedNickname, initia
 
                 {/* OUTPUT + SYNC */}
                 <div className="flex flex-col gap-4">
-
-                    {/* Output */}
-                    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-4">
-                        <div className="flex justify-between items-center mb-3">
-                            <h3 className="font-semibold">📋 Output</h3>
-                            <button onClick={handleCopy} className="birdflop-btn px-3 py-1.5 text-sm">
-                                {copied ? '✓ Copied' : 'Copy'}
-                            </button>
-                        </div>
-                        <textarea readOnly value={generatedOutput}
-                            className="w-full h-28 birdflop-input px-3 py-2 text-xs font-mono resize-none mb-3"/>
-                        <div>
-                            <label className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide block mb-1">Format</label>
-                            <select value={outputFormat} onChange={e=>setOutputFormat(e.target.value)}
-                                className="birdflop-input w-full px-3 py-2 text-sm">
-                                {OUTPUT_FORMATS.map(f=><option key={f.value} value={f.value}>{f.label}</option>)}
-                            </select>
-                        </div>
-                    </div>
 
                     {/* Server Sync */}
                     <div className="bg-[var(--bg-card)] border border-[var(--accent-blue)]/50 rounded-xl p-4" style={{background:'color-mix(in srgb, var(--accent-blue) 5%, var(--bg-card))'}}>
