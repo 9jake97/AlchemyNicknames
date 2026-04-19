@@ -92,8 +92,8 @@ function parseNickname(nick) {
   if (!nick) return null;
 
   const chars = [];
-  // MiniMessage per-character: <#RRGGBB>(modifiers)char
-  const mm = /<(#[A-Fa-f0-9]{6})>((?:<[^>]+>)*)([^<])/g;
+  // Match <#RRGGBB> and <color:#RRGGBB> / <colour:#RRGGBB>
+  const mm = /<(?:color:|colour:)?(#[A-Fa-f0-9]{6})>((?:<[^>]+>)*)([^<])/g;
   let m;
   while ((m = mm.exec(nick)) !== null) {
     chars.push({ color: m[1].toUpperCase(), char: m[3] });

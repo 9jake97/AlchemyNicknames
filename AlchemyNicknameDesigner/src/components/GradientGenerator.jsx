@@ -415,6 +415,14 @@ const GradientGenerator = ({ playerInfo, currentNickname, parsedNickname, initia
                         ) : (
                             <p className="text-sm text-[var(--accent-red)] mb-3">Run <code>/nicknameeditor</code> in-game to get a link.</p>
                         )}
+                        {currentNickname && (
+                            <div className="mb-3 p-2 rounded-lg bg-[var(--bg-input)] border border-[var(--border-color)]">
+                                <div className="text-[10px] text-[var(--text-secondary)] uppercase mb-1">
+                                    {parsedNickname ? 'Loaded from server ✓' : 'Raw (could not parse gradient)'}
+                                </div>
+                                <div className="text-xs font-mono text-[var(--text-secondary)] break-all">{currentNickname}</div>
+                            </div>
+                        )}
                         <button onClick={handleSave} disabled={saving || !playerInfo?.token}
                             className="birdflop-btn-blue w-full py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
