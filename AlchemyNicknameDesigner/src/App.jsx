@@ -91,29 +91,60 @@ const makeStop = (hex, pos) => ({ id: Math.random().toString(36).slice(2), hex, 
 function parseNickname(nick) {
   if (!nick) return null;
 
-  const chars = [];
-  // Match <#RRGGBB> and <color:#RRGGBB> / <colour:#RRGGBB>
-  const mm = /<(?:color:|colour:)?(#[A-Fa-f0-9]{6})>((?:<[^>]+>)*)([^<])/g;
-  let m;
-  while ((m = mm.exec(nick)) !== null) {
-    chars.push({ color: m[1].toUpperCase(), char: m[3] });
+  const entries = []; // { color: '#RRGGBB' | null, char }
+  let i = 0;
+
+  while (i < nick.length) {
+    // Color tag: <#RRGGBB>, <color:#RRGGBB>, <colour:#RRGGBB>
+    const colorTag = nick.slice(i).match(/^<(?:color:|colour:)?(#[A-Fa-f0-9]{6})>/i);
+    if (colorTag) {
+      const color = colorTag[1].toUpperCase();
+      i += colorTag[0].length;
+      // Skip any modifier tags following the color tag
+      let modMatch;
+      while ((modMatch = nick.slice(i).match(/^<[^>]+>/))) i += modMatch[0].length;
+      // Capture the next non-tag character as the colored char
+      if (i < nick.length && nick[i] !== '<') {
+        entries.push({ color, char: nick[i++] });
+      }
+      continue;
+    }
+
+    // Space (uncolored — trimSpaces strips color from spaces)
+    if (nick[i] === ' ') {
+      entries.push({ color: null, char: ' ' });
+      i++;
+      continue;
+    }
+
+    // Any other tag (modifier, closing, etc.) — skip it
+    if (nick[i] === '<') {
+      const end = nick.indexOf('>', i);
+      i = end !== -1 ? end + 1 : i + 1;
+      continue;
+    }
+
+    i++;
   }
 
-  // Legacy &#RRGGBB fallback
-  if (chars.length < 2) {
+  // Fallback: legacy &#RRGGBB format
+  if (entries.filter(e => e.color).length < 2) {
+    entries.length = 0;
     const leg = /&#([A-Fa-f0-9]{6})((?:&[lnmok])*)([^&<])/g;
+    let m;
     while ((m = leg.exec(nick)) !== null) {
-      chars.push({ color: '#' + m[1].toUpperCase(), char: m[3] });
+      entries.push({ color: '#' + m[1].toUpperCase(), char: m[3] });
     }
   }
 
-  if (chars.length < 2) return null;
+  const colored = entries.filter(e => e.color);
+  if (colored.length < 2) return null;
 
-  const text = chars.map(c => c.char).join('');
-  const numStops = Math.min(chars.length, 7);
-  const stops = Array.from({ length: numStops }, (_, i) => {
-    const idx = Math.round(i / (numStops - 1) * (chars.length - 1));
-    return makeStop(chars[idx].color, Math.round(i / (numStops - 1) * 100));
+  const text = entries.map(e => e.char).join('');
+  const n = Math.min(colored.length, 7);
+  const stops = Array.from({ length: n }, (_, i) => {
+    const idx = Math.round(i / (n - 1) * (colored.length - 1));
+    return makeStop(colored[idx].color, Math.round(i / (n - 1) * 100));
   });
 
   const formats = {
