@@ -1,42 +1,101 @@
 import React, { useEffect, useState } from 'react';
 import GradientGenerator from './components/GradientGenerator';
 
+function CodeEntryForm({ onSubmit }) {
+  const [name, setName] = useState('');
+  const [code, setCode] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (name.trim() && code.trim()) {
+      onSubmit(name.trim(), code.trim());
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="birdflop-panel p-8 max-w-md w-full space-y-6">
+
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl font-bold text-white">✦ Nickname Designer</h1>
+          <p className="text-[var(--text-secondary)] text-sm">
+            Click the link in chat to open automatically, or enter your details below.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide">
+              Minecraft Username
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Steve"
+              className="birdflop-input w-full px-3 py-2 text-sm"
+              autoComplete="off"
+              spellCheck="false"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide">
+              Session Code
+            </label>
+            <input
+              type="text"
+              value={code}
+              onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
+              placeholder="12345"
+              className="birdflop-input w-full px-3 py-2 text-sm font-mono tracking-widest text-center text-lg"
+              maxLength={5}
+              inputMode="numeric"
+            />
+            <p className="text-xs text-[var(--text-secondary)]">
+              The 5-digit code shown in chat after running <span className="font-mono text-[var(--accent-blue)]">/nicknameeditor</span>
+            </p>
+          </div>
+
+          <button
+            type="submit"
+            disabled={name.trim().length < 1 || code.trim().length !== 5}
+            className="birdflop-btn-blue w-full py-3 text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Open Designer
+          </button>
+        </form>
+
+        <div className="border-t border-[var(--border-color)] pt-4 text-center">
+          <p className="text-xs text-[var(--text-secondary)]">
+            Session codes expire after <span className="text-white">10 minutes</span>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
 function App() {
-  const [playerInfo, setPlayerInfo] = useState({ name: '', token: '', apiBase: '' });
+  const [playerInfo, setPlayerInfo] = useState(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const player = params.get('player') || '';
     const token = params.get('token') || '';
     const apiBase = params.get('api') || '';
-    if (player || token) {
-      setPlayerInfo({ name: player, token: token, apiBase: apiBase });
+    if (player && token) {
+      setPlayerInfo({ name: player, token, apiBase });
     }
   }, []);
 
-  if (!playerInfo.token || !playerInfo.name) {
+  // No URL params — show code entry form
+  if (!playerInfo) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="birdflop-panel p-8 max-w-md w-full text-center space-y-6">
-          <div className="flex justify-center">
-            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20">
-              <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-white">Session Required</h1>
-            <p className="text-[var(--text-secondary)]">
-              This designer is only accessible via a direct link generated from the server.
-            </p>
-          </div>
-          <div className="bg-[var(--bg-input)] p-4 rounded-md border border-[var(--border-color)]">
-            <p className="text-sm font-mono text-[var(--accent-blue)]">/nicknameeditor</p>
-            <p className="text-xs text-[var(--text-secondary)] mt-2">Run this command in-game to access your designer.</p>
-          </div>
-        </div>
-      </div>
+      <CodeEntryForm
+        onSubmit={(name, code) => setPlayerInfo({ name, token: code, apiBase: '' })}
+      />
     );
   }
 

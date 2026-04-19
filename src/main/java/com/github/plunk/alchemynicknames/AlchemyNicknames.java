@@ -60,6 +60,9 @@ public class AlchemyNicknames extends JavaPlugin {
             player.sendMessage(mm.deserialize(" <dark_gray>»</dark_gray> <gray>Your session expires in <white>10 minutes</white></gray>"));
             player.sendMessage(net.kyori.adventure.text.Component.empty());
             player.sendMessage(mm.deserialize("      <click:open_url:'" + link + "'><hover:show_text:'<gray>Opens in your browser'><gradient:#00c6ff:#8000FF><bold>[  ✦ Open Designer  ]</bold></gradient></hover></click>"));
+            player.sendMessage(net.kyori.adventure.text.Component.empty());
+            player.sendMessage(mm.deserialize(" <dark_gray>»</dark_gray> <gray>Bedrock / can't click? Visit the site and enter:</gray>"));
+            player.sendMessage(mm.deserialize("   <dark_gray>Name: </dark_gray><white>" + player.getName() + "</white>   <dark_gray>Code: </dark_gray><gradient:#00c6ff:#8000FF><bold>" + token + "</bold></gradient>"));
             player.sendMessage(mm.deserialize("<dark_gray>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</dark_gray>"));
             
             return true;
