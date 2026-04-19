@@ -31,4 +31,4 @@ web:
   # The public base URL of your server (used as the API endpoint embedded in links)
   base-url: "https://stats.bloc.kz"
   # The URL of the Nickname Designer frontend (GitHub Pages or custom domain)
-  editor-url: "https://plunk.github.io/AlchemyNicknames"
+  editor-url: "https://9jake97.github.io/AlchemyNicknames"
