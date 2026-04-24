@@ -261,15 +261,22 @@ public class AlchemyPersona extends JavaPlugin {
                         String unicode = getPinsConfig().getString("pins." + pinId + ".pin_unicode");
                         pinData.put("unicode", unicode);
                         
-                        // Nexo Mapping Lookup
-                        if (unicode != null) {
+                        // 1. Explicit Nexo Texture Config
+                        String explicitTexture = getPinsConfig().getString("pins." + pinId + ".nexo_texture");
+                        if (explicitTexture != null && explicitTexture.contains(":")) {
+                            String[] parts = explicitTexture.split(":");
+                            pinData.put("imageUrl", "/api/nickname/assets/" + parts[0] + "/textures/" + parts[1] + ".png");
+                        }
+                        
+                        // 2. Nexo Mapping Lookup (by Unicode)
+                        if (!pinData.containsKey("imageUrl") && unicode != null) {
                             String stripped = org.bukkit.ChatColor.stripColor(org.bukkit.ChatColor.translateAlternateColorCodes('&', unicode)).trim();
                             if (nexoMapping.containsKey(stripped)) {
                                 pinData.put("imageUrl", nexoMapping.get(stripped));
                             }
                         }
                         
-                        // Fallback: Lookup by ID (case-insensitive)
+                        // 3. Fallback: Lookup by ID (case-insensitive)
                         if (!pinData.containsKey("imageUrl")) {
                             String lowerId = pinId.toLowerCase();
                             if (nexoMapping.containsKey(lowerId)) {
