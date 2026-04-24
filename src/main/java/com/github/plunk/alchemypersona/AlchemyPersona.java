@@ -317,7 +317,7 @@ public class AlchemyPersona extends JavaPlugin {
         });
 
         // Serve Nexo assets
-        app.get("/api/nickname/assets/{namespace}/textures/{path}", ctx -> {
+        server.get("/api/nickname/assets/{namespace}/textures/{path}", ctx -> {
             String namespace = ctx.pathParam("namespace");
             String path = ctx.pathParam("path");
             java.io.File assetsFolder = new java.io.File(getDataFolder().getParentFile(), "Nexo/pack/assets");
