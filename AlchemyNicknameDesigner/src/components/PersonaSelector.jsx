@@ -76,13 +76,15 @@ export default function PersonaSelector({ items, type, onSelect, apiBase }) {
                           className="max-w-full max-h-full object-contain pixelated"
                           onError={(e) => {
                             e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'block';
+                            e.target.parentElement.nextSibling.style.display = 'flex';
                           }}
                         />
-                        <span className="hidden mc-text">{item.unicode}</span>
                       </div>
-                    ) : (
-                      item.unicode && <span className="mr-2 mc-text">{item.unicode}</span>
+                    ) : null}
+                    {(!item.imageUrl || true) && item.unicode && (
+                      <div className={`w-10 h-10 bg-black/20 rounded-lg p-1 flex items-center justify-center border border-white/5 shadow-inner mc-text ${item.imageUrl ? 'hidden' : ''}`}>
+                         <MinecraftText text={item.unicode} />
+                      </div>
                     )}
                     <div className="truncate flex-1">
                       <MinecraftText text={item.displayName || item.text || item.id} />

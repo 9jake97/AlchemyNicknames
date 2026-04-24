@@ -269,6 +269,14 @@ public class AlchemyPersona extends JavaPlugin {
                             }
                         }
                         
+                        // Fallback: Lookup by ID (case-insensitive)
+                        if (!pinData.containsKey("imageUrl")) {
+                            String lowerId = pinId.toLowerCase();
+                            if (nexoMapping.containsKey(lowerId)) {
+                                pinData.put("imageUrl", nexoMapping.get(lowerId));
+                            }
+                        }
+                        
                         pinData.put("owned", hasPerm.test("LPP.pin." + pinId));
                         pinData.put("selected", pinId.equals(currentPin) || (currentPin != null && currentPin.equals(unicode)));
                         pins.add(pinData);
@@ -457,6 +465,10 @@ public class AlchemyPersona extends JavaPlugin {
                     if (parts.length == 2) {
                         String imageUrl = "/api/nickname/assets/" + parts[0] + "/textures/" + parts[1] + ".png";
                         nexoMapping.put(charStr, imageUrl);
+                        
+                        // Also map by key (stripping _digits if present)
+                        String cleanKey = key.toLowerCase().replaceAll("_\\d+$", "");
+                        nexoMapping.put(cleanKey, imageUrl);
                     }
                 }
             }
