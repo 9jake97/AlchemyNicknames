@@ -206,7 +206,6 @@ public class AlchemyPersona extends JavaPlugin {
         server.get("/health", ctx -> ctx.result("AlchemyPersona API is UP"));
 
         server.get("/data", ctx -> {
-            getLogger().info("Processing /data request...");
             String token = ctx.queryParam("token");
             if (token == null) { ctx.status(400).result("Missing token"); return; }
             Session session = sessions.get(token);
@@ -214,16 +213,41 @@ public class AlchemyPersona extends JavaPlugin {
                 ctx.status(401).result("Invalid or expired token"); return;
             }
             java.util.UUID uuid = java.util.UUID.fromString(session.uuid());
-            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(uuid);
-            if (player == null) { ctx.status(404).result("Player not online"); return; }
+            org.bukkit.OfflinePlayer offlinePlayer = org.bukkit.Bukkit.getOfflinePlayer(uuid);
+            
+            // Get LuckPerms user for permission checks (even if offline)
+            net.luckperms.api.model.user.User lpUser = null;
+            var lp = getLuckPerms();
+            if (lp != null) {
+                lpUser = lp.getUserManager().getUser(uuid);
+                if (lpUser == null) {
+                    // Try to load from storage if not in memory
+                    lpUser = lp.getUserManager().loadUser(uuid).join();
+                }
+            }
 
             var data = new java.util.HashMap<String, Object>();
             data.put("nickname", nicknameManager.getNickname(uuid));
             
+            final net.luckperms.api.model.user.User finalLpUser = lpUser;
+            java.util.function.Predicate<String> hasPerm = (perm) -> {
+                if (finalLpUser != null) {
+                    return finalLpUser.getCachedData().getPermissionData().checkPermission(perm).asBoolean();
+                }
+                return false;
+            };
+
             // Pins
             var pins = new java.util.ArrayList<java.util.Map<String, Object>>();
             if (pinManager != null && getPinsConfig() != null) {
-                String currentPin = pinManager.getCurrentPin(player);
+                // For current pin, we might need online player or LP metadata
+                String currentPin = null;
+                if (offlinePlayer.isOnline()) {
+                    currentPin = pinManager.getCurrentPin(offlinePlayer.getPlayer());
+                } else if (finalLpUser != null) {
+                    currentPin = finalLpUser.getCachedData().getMetaData().getSuffix();
+                }
+
                 var section = getPinsConfig().getConfigurationSection("pins");
                 if (section != null) {
                     for (String pinId : section.getKeys(false)) {
@@ -231,7 +255,7 @@ public class AlchemyPersona extends JavaPlugin {
                         pinData.put("id", pinId);
                         pinData.put("displayName", getPinsConfig().getString("pins." + pinId + ".display_name"));
                         pinData.put("unicode", getPinsConfig().getString("pins." + pinId + ".pin_unicode"));
-                        pinData.put("owned", player.hasPermission("LPP.pin." + pinId));
+                        pinData.put("owned", hasPerm.test("LPP.pin." + pinId));
                         pinData.put("selected", pinId.equals(currentPin) || (currentPin != null && currentPin.equals(getPinsConfig().getString("pins." + pinId + ".pin_unicode"))));
                         pins.add(pinData);
                     }
@@ -250,7 +274,8 @@ public class AlchemyPersona extends JavaPlugin {
                         tagData.put("id", tagId);
                         tagData.put("displayName", getTagsConfig().getString("tags." + tagId + ".display_name"));
                         tagData.put("tag", getTagsConfig().getString("tags." + tagId + ".tag"));
-                        tagData.put("owned", player.hasPermission(getTagsConfig().getString("tags." + tagId + ".permission", "deluxetags.tag." + tagId)));
+                        String perm = getTagsConfig().getString("tags." + tagId + ".permission", "deluxetags.tag." + tagId);
+                        tagData.put("owned", hasPerm.test(perm));
                         tagData.put("selected", tagId.equals(currentTagId));
                         tags.add(tagData);
                     }
@@ -266,14 +291,13 @@ public class AlchemyPersona extends JavaPlugin {
                     var jmData = new java.util.HashMap<String, Object>();
                     jmData.put("id", jm.getIdentifier());
                     jmData.put("text", jm.getMessage());
-                    jmData.put("owned", player.hasPermission(jm.getPermission()));
+                    jmData.put("owned", hasPerm.test(jm.getPermission()));
                     jmData.put("selected", jm.getIdentifier().equals(currentJm));
                     jms.add(jmData);
                 }
             }
             data.put("joinMessages", jms);
 
-            getLogger().info("Successfully prepared data for " + player.getName() + " (Pins: " + pins.size() + ", Tags: " + tags.size() + ")");
             ctx.json(data);
         });
 
