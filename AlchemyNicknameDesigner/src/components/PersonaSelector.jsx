@@ -72,9 +72,6 @@ export default function PersonaSelector({ items, type, onSelect }) {
                     <MinecraftText text={item.displayName || item.text || item.id} />
                   </div>
                 )}
-                <div className="text-[10px] text-[var(--text-secondary)] uppercase font-bold tracking-tight">
-                  {item.owned ? '✓ Unlocked' : '🔒 Locked'}
-                </div>
               </div>
               {item.selected && (
                 <div className="bg-[var(--accent-blue)] text-white text-[10px] px-2 py-0.5 rounded-full uppercase font-bold flex-shrink-0">
