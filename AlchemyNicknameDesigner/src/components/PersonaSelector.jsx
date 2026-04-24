@@ -89,7 +89,7 @@ export default function PersonaSelector({ items, type, onSelect }) {
 
             {type === 'Join Message' && item.text && (
               <div className="mt-3 p-2 bg-black/20 rounded text-sm italic text-[var(--text-secondary)] border border-white/5">
-                "<MinecraftText text={item.text} />"
+                "<MinecraftText text={item.text.replace(/%player%/g, window.playerInfo?.name || 'Player')} />"
               </div>
             )}
           </div>

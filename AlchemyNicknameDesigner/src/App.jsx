@@ -187,6 +187,7 @@ function App() {
     const apiBase = params.get('api') || '';
     if (player && token) {
       const info = { name: player, token, apiBase };
+      window.playerInfo = info;
       setPlayerInfo(info);
       fetchPersonaData(info);
     }
