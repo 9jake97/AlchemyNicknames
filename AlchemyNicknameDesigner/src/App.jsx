@@ -294,6 +294,7 @@ function App() {
                     type="Pin" 
                     items={personaData?.pins || []} 
                     onSelect={(id) => handleSaveSelection('selectedPin', id)} 
+                    apiBase={playerInfo.apiBase}
                   />
                 </div>
               )}

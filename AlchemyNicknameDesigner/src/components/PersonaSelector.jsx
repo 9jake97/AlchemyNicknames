@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import MinecraftText from './MinecraftText';
 
-export default function PersonaSelector({ items, type, onSelect }) {
+export default function PersonaSelector({ items, type, onSelect, apiBase }) {
   const [filter, setFilter] = useState('unlocked'); // 'all', 'unlocked', 'locked'
 
   if (!items || items.length === 0) {
@@ -67,9 +67,26 @@ export default function PersonaSelector({ items, type, onSelect }) {
             <div className="flex justify-between items-start">
               <div className="min-w-0 flex-1">
                 {type !== 'Join Message' && type !== 'Tag' && (
-                  <div className="font-bold text-white text-lg truncate">
-                    {item.unicode && <span className="mr-2">{item.unicode}</span>}
-                    <MinecraftText text={item.displayName || item.text || item.id} />
+                  <div className="font-bold text-white text-lg flex items-center gap-3">
+                    {item.imageUrl ? (
+                      <div className="w-10 h-10 bg-black/20 rounded-lg p-1 flex items-center justify-center border border-white/5 shadow-inner">
+                        <img 
+                          src={`${apiBase || ''}${item.imageUrl}`} 
+                          alt={item.id} 
+                          className="max-w-full max-h-full object-contain pixelated"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'block';
+                          }}
+                        />
+                        <span className="hidden mc-text">{item.unicode}</span>
+                      </div>
+                    ) : (
+                      item.unicode && <span className="mr-2 mc-text">{item.unicode}</span>
+                    )}
+                    <div className="truncate flex-1">
+                      <MinecraftText text={item.displayName || item.text || item.id} />
+                    </div>
                   </div>
                 )}
               </div>

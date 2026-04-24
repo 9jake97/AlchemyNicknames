@@ -144,6 +144,11 @@ body {
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.8);
 }
 
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-main); }

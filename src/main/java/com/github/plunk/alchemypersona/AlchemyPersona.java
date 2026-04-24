@@ -47,6 +47,7 @@ public class AlchemyPersona extends JavaPlugin {
     private MessageManager messageManager;
     private MessageMenuManager joinMessagesMenuManager;
     private GUIOptions joinMessagesGuiOptions;
+    private java.util.Map<String, String> nexoMapping = new java.util.HashMap<>();
 
     // Configs
     private FileConfiguration nicknamesConfig;
@@ -117,6 +118,8 @@ public class AlchemyPersona extends JavaPlugin {
             new com.github.plunk.alchemypersona.joinmessages.commands.CommandAlchemyJoinMessages(this);
         getCommand("alchemyjoinmessages").setExecutor(ajmHandler);
         getCommand("alchemyjoinmessages").setTabCompleter(ajmHandler);
+
+        loadNexoGlyphs();
 
         getLogger().info("AlchemyPersona v" + getDescription().getVersion() + " has been enabled!");
     }
@@ -255,9 +258,19 @@ public class AlchemyPersona extends JavaPlugin {
                         var pinData = new java.util.HashMap<String, Object>();
                         pinData.put("id", pinId);
                         pinData.put("displayName", getPinsConfig().getString("pins." + pinId + ".display_name"));
-                        pinData.put("unicode", getPinsConfig().getString("pins." + pinId + ".pin_unicode"));
+                        String unicode = getPinsConfig().getString("pins." + pinId + ".pin_unicode");
+                        pinData.put("unicode", unicode);
+                        
+                        // Nexo Mapping Lookup
+                        if (unicode != null) {
+                            String stripped = org.bukkit.ChatColor.stripColor(org.bukkit.ChatColor.translateAlternateColorCodes('&', unicode)).trim();
+                            if (nexoMapping.containsKey(stripped)) {
+                                pinData.put("imageUrl", nexoMapping.get(stripped));
+                            }
+                        }
+                        
                         pinData.put("owned", hasPerm.test("LPP.pin." + pinId));
-                        pinData.put("selected", pinId.equals(currentPin) || (currentPin != null && currentPin.equals(getPinsConfig().getString("pins." + pinId + ".pin_unicode"))));
+                        pinData.put("selected", pinId.equals(currentPin) || (currentPin != null && currentPin.equals(unicode)));
                         pins.add(pinData);
                     }
                 }
@@ -301,6 +314,21 @@ public class AlchemyPersona extends JavaPlugin {
             data.put("joinMessages", jms);
 
             ctx.json(data);
+        });
+
+        // Serve Nexo assets
+        app.get("/api/nickname/assets/{namespace}/textures/{path}", ctx -> {
+            String namespace = ctx.pathParam("namespace");
+            String path = ctx.pathParam("path");
+            java.io.File assetsFolder = new java.io.File(getDataFolder().getParentFile(), "Nexo/pack/assets");
+            java.io.File textureFile = new java.io.File(assetsFolder, namespace + "/textures/" + path);
+            
+            if (textureFile.exists()) {
+                ctx.contentType("image/png");
+                ctx.result(new java.io.FileInputStream(textureFile));
+            } else {
+                ctx.status(404);
+            }
         });
 
         io.javalin.http.Handler saveHandler = ctx -> {
@@ -409,6 +437,31 @@ public class AlchemyPersona extends JavaPlugin {
             return net.luckperms.api.LuckPermsProvider.get();
         }
         return null;
+    }
+
+    private void loadNexoGlyphs() {
+        java.io.File nexoFolder = new java.io.File(getDataFolder().getParentFile(), "Nexo/glyphs");
+        if (!nexoFolder.exists()) return;
+
+        java.io.File[] files = nexoFolder.listFiles((dir, name) -> name.endsWith(".yml"));
+        if (files == null) return;
+
+        for (java.io.File file : files) {
+            org.bukkit.configuration.file.YamlConfiguration config = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(file);
+            for (String key : config.getKeys(false)) {
+                String charStr = config.getString(key + ".char");
+                String texture = config.getString(key + ".texture");
+                if (charStr != null && texture != null) {
+                    // texture format: namespace:path
+                    String[] parts = texture.split(":");
+                    if (parts.length == 2) {
+                        String imageUrl = "/api/nickname/assets/" + parts[0] + "/textures/" + parts[1] + ".png";
+                        nexoMapping.put(charStr, imageUrl);
+                    }
+                }
+            }
+        }
+        getLogger().info("Loaded " + nexoMapping.size() + " Nexo glyph mappings for Pins.");
     }
 
     public static class SaveRequest {
