@@ -203,9 +203,10 @@ public class AlchemyPersona extends JavaPlugin {
             config.bundledPlugins.enableCors(cors -> cors.addRule(it -> it.anyHost()));
         });
 
-        server.get("/api/nickname/health", ctx -> ctx.result("AlchemyPersona API is UP"));
+        server.get("/health", ctx -> ctx.result("AlchemyPersona API is UP"));
 
-        server.get("/api/nickname/data", ctx -> {
+        server.get("/data", ctx -> {
+            getLogger().info("Processing /data request...");
             String token = ctx.queryParam("token");
             if (token == null) { ctx.status(400).result("Missing token"); return; }
             Session session = sessions.get(token);
@@ -221,23 +222,26 @@ public class AlchemyPersona extends JavaPlugin {
             
             // Pins
             var pins = new java.util.ArrayList<java.util.Map<String, Object>>();
-            if (pinManager != null) {
+            if (pinManager != null && getPinsConfig() != null) {
                 String currentPin = pinManager.getCurrentPin(player);
-                for (String pinId : getPinsConfig().getConfigurationSection("pins").getKeys(false)) {
-                    var pinData = new java.util.HashMap<String, Object>();
-                    pinData.put("id", pinId);
-                    pinData.put("displayName", getPinsConfig().getString("pins." + pinId + ".display_name"));
-                    pinData.put("unicode", getPinsConfig().getString("pins." + pinId + ".pin_unicode"));
-                    pinData.put("owned", player.hasPermission("LPP.pin." + pinId));
-                    pinData.put("selected", pinId.equals(currentPin) || (currentPin != null && currentPin.equals(getPinsConfig().getString("pins." + pinId + ".pin_unicode"))));
-                    pins.add(pinData);
+                var section = getPinsConfig().getConfigurationSection("pins");
+                if (section != null) {
+                    for (String pinId : section.getKeys(false)) {
+                        var pinData = new java.util.HashMap<String, Object>();
+                        pinData.put("id", pinId);
+                        pinData.put("displayName", getPinsConfig().getString("pins." + pinId + ".display_name"));
+                        pinData.put("unicode", getPinsConfig().getString("pins." + pinId + ".pin_unicode"));
+                        pinData.put("owned", player.hasPermission("LPP.pin." + pinId));
+                        pinData.put("selected", pinId.equals(currentPin) || (currentPin != null && currentPin.equals(getPinsConfig().getString("pins." + pinId + ".pin_unicode"))));
+                        pins.add(pinData);
+                    }
                 }
             }
             data.put("pins", pins);
 
             // Tags
             var tags = new java.util.ArrayList<java.util.Map<String, Object>>();
-            if (tagManager != null) {
+            if (tagManager != null && getTagsConfig() != null) {
                 String currentTagId = tagManager.getPlayerTagId(uuid);
                 var tagSection = getTagsConfig().getConfigurationSection("tags");
                 if (tagSection != null) {
@@ -269,6 +273,7 @@ public class AlchemyPersona extends JavaPlugin {
             }
             data.put("joinMessages", jms);
 
+            getLogger().info("Successfully prepared data for " + player.getName() + " (Pins: " + pins.size() + ", Tags: " + tags.size() + ")");
             ctx.json(data);
         });
 
@@ -329,9 +334,9 @@ public class AlchemyPersona extends JavaPlugin {
             }
         };
 
-        server.post("/api/nickname/save", saveHandler);
+        server.post("/save", saveHandler);
 
-        server.get("/api/nickname/current", ctx -> {
+        server.get("/current", ctx -> {
             String token = ctx.queryParam("token");
             if (token == null) { ctx.status(400).result("Missing token"); return; }
             Session session = sessions.get(token);
