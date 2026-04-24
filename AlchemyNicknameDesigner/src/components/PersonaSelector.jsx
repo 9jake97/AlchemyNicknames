@@ -66,7 +66,7 @@ export default function PersonaSelector({ items, type, onSelect }) {
           >
             <div className="flex justify-between items-start">
               <div className="min-w-0 flex-1">
-                {type !== 'Join Message' && (
+                {type !== 'Join Message' && type !== 'Tag' && (
                   <div className="font-bold text-white text-lg truncate">
                     {item.unicode && <span className="mr-2">{item.unicode}</span>}
                     <MinecraftText text={item.displayName || item.text || item.id} />
@@ -84,7 +84,8 @@ export default function PersonaSelector({ items, type, onSelect }) {
             </div>
             
             {type === 'Tag' && item.tag && (
-              <div className="mt-3 p-2 bg-black/20 rounded font-mono text-sm overflow-hidden text-ellipsis whitespace-nowrap border border-white/5">
+              <div className="mt-2 p-3 bg-black/40 rounded border border-white/5 mc-text mc-shadow text-lg flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
+                <div className="w-1.5 h-6 bg-[var(--accent-green)] rounded-full opacity-50"></div>
                 <MinecraftText text={item.tag} />
               </div>
             )}
