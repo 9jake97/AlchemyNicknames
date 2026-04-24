@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import MinecraftText from './MinecraftText';
 
 export default function PersonaSelector({ items, type, onSelect }) {
   const [filter, setFilter] = useState('unlocked'); // 'all', 'unlocked', 'locked'
@@ -67,7 +68,7 @@ export default function PersonaSelector({ items, type, onSelect }) {
               <div className="min-w-0">
                 <div className="font-bold text-white text-lg truncate">
                   {item.unicode && <span className="mr-2">{item.unicode}</span>}
-                  {item.displayName || item.text || item.id}
+                  <MinecraftText text={item.displayName || item.text || item.id} />
                 </div>
                 <div className="text-[10px] text-[var(--text-secondary)] uppercase font-bold tracking-tight">
                   {item.owned ? '✓ Unlocked' : '🔒 Locked'}
@@ -82,13 +83,13 @@ export default function PersonaSelector({ items, type, onSelect }) {
             
             {type === 'Tag' && item.tag && (
               <div className="mt-3 p-2 bg-black/20 rounded font-mono text-sm overflow-hidden text-ellipsis whitespace-nowrap border border-white/5">
-                {item.tag}
+                <MinecraftText text={item.tag} />
               </div>
             )}
 
             {type === 'Join Message' && item.text && (
               <div className="mt-3 p-2 bg-black/20 rounded text-sm italic text-[var(--text-secondary)] border border-white/5">
-                "{item.text}"
+                "<MinecraftText text={item.text} />"
               </div>
             )}
           </div>

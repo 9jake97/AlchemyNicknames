@@ -227,6 +227,7 @@ public class AlchemyPersona extends JavaPlugin {
             }
 
             var data = new java.util.HashMap<String, Object>();
+            data.put("playerName", offlinePlayer.getName());
             data.put("nickname", nicknameManager.getNickname(uuid));
             
             final net.luckperms.api.model.user.User finalLpUser = lpUser;
@@ -290,7 +291,8 @@ public class AlchemyPersona extends JavaPlugin {
                 for (var jm : messageManager.getLoadedMessages()) {
                     var jmData = new java.util.HashMap<String, Object>();
                     jmData.put("id", jm.getIdentifier());
-                    jmData.put("text", jm.getMessage());
+                    String text = jm.getMessage().replace("%player%", offlinePlayer.getName() != null ? offlinePlayer.getName() : "Player");
+                    jmData.put("text", text);
                     jmData.put("owned", hasPerm.test(jm.getPermission()));
                     jmData.put("selected", jm.getIdentifier().equals(currentJm));
                     jms.add(jmData);
