@@ -288,11 +288,11 @@ public class AlchemyPersona extends JavaPlugin {
             var jms = new java.util.ArrayList<java.util.Map<String, Object>>();
             if (messageManager != null) {
                 String currentJm = com.github.plunk.alchemypersona.joinmessages.Data.get().getString("players." + uuid);
+                String pName = offlinePlayer.getName() != null ? offlinePlayer.getName() : "Player";
                 for (var jm : messageManager.getLoadedMessages()) {
                     var jmData = new java.util.HashMap<String, Object>();
                     jmData.put("id", jm.getIdentifier());
-                    String text = jm.getMessage().replace("%player%", offlinePlayer.getName() != null ? offlinePlayer.getName() : "Player");
-                    jmData.put("text", text);
+                    jmData.put("text", jm.getFormattedMessage(pName));
                     jmData.put("owned", hasPerm.test(jm.getPermission()));
                     jmData.put("selected", jm.getIdentifier().equals(currentJm));
                     jms.add(jmData);
