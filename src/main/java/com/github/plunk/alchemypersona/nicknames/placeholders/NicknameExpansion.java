@@ -1,7 +1,7 @@
-package com.github.plunk.alchemynicknames.placeholders;
+package com.github.plunk.alchemypersona.nicknames.placeholders;
 
-import com.github.plunk.alchemynicknames.AlchemyNicknames;
-import com.github.plunk.alchemynicknames.managers.NicknameManager;
+import com.github.plunk.alchemypersona.AlchemyPersona;
+import com.github.plunk.alchemypersona.nicknames.managers.NicknameManager;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -10,17 +10,17 @@ import org.jetbrains.annotations.NotNull;
 
 public class NicknameExpansion extends PlaceholderExpansion {
 
-    private final AlchemyNicknames plugin;
+    private final AlchemyPersona plugin;
     private final NicknameManager nicknameManager;
 
-    public NicknameExpansion(AlchemyNicknames plugin, NicknameManager nicknameManager) {
+    public NicknameExpansion(AlchemyPersona plugin, NicknameManager nicknameManager) {
         this.plugin = plugin;
         this.nicknameManager = nicknameManager;
     }
 
     @Override
     public @NotNull String getIdentifier() {
-        return "alchemynicknames";
+        return "persona";
     }
 
     @Override

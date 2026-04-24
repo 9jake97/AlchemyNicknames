@@ -1,0 +1,427 @@
+# Pins Module Settings
+luckperms_priority: 1
+luckperms_context: ""
+
+# Default Locked Pin Configuration
+default_locked_pin:
+  material: NAME_TAG
+  display_name: "&c%name% (Locked)"
+  lore:
+    - "&cYou do not own this pin."
+    - "&7Purchase it at store.example.com"
+
+# Default Unlocked Lore
+default_unlocked_lore:
+  - "&e➥ Left-Click to select"
+
+# Default Permission Format
+default_permission: "LPP.pin.%name%"
+
+# Default Material
+default_material: NAME_TAG
+
+pins:
+  'Alex':
+    display_name: "&fAlex"
+    categories: ['all', 'others']
+    pin_unicode: "&f"
+  'AmericanFootball':
+    display_name: "&fAmericanFootball"
+    categories: ['all', 'games']
+    pin_unicode: "&f"
+  'AmongUs':
+    display_name: "&fAmongUs"
+    categories: ['all', 'games']
+    pin_unicode: "&f"
+  'Apple':
+    display_name: "&fApple"
+    categories: ['all', 'foods']
+    pin_unicode: "&f"
+  'Banana':
+    display_name: "&fBanana"
+    categories: ['all', 'foods']
+    pin_unicode: "&f"
+  'Batman':
+    display_name: "&fBatman"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Bowser':
+    display_name: "&fBowser"
+    categories: ['all', 'games']
+    pin_unicode: "&f"
+  'Broccoli':
+    display_name: "&fBroccoli"
+    categories: ['all', 'foods']
+    pin_unicode: "&f"
+  'BullDog':
+    display_name: "&fBullDog"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'Cactus':
+    display_name: "&fCactus"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Camera':
+    display_name: "&fCamera"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'CaptainAmerica':
+    display_name: "&fCaptainAmerica"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Carrot':
+    display_name: "&fCarrot"
+    categories: ['all', 'foods']
+    pin_unicode: "&f"
+  'CatBlack':
+    display_name: "&fCatBlack"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'CatOrange':
+    display_name: "&fCatOrange"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'CatWhite':
+    display_name: "&fCatWhite"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'ChessBlack':
+    display_name: "&fChessBlack"
+    categories: ['all', 'games']
+    pin_unicode: "&f"
+  'ChessWhite':
+    display_name: "&fChessWhite"
+    categories: ['all', 'games']
+    pin_unicode: "&f"
+  'Chip':
+    display_name: "&fChip"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Clock':
+    display_name: "&fClock"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Coins':
+    display_name: "&fCoins"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Corgi':
+    display_name: "&fCorgi"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'Crown':
+    display_name: "&fCrown"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Deadpool':
+    display_name: "&fDeadpool"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Death':
+    display_name: "&fDeath"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'DivingHelmet':
+    display_name: "&fDivingHelmet"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'DonaldDuck':
+    display_name: "&fDonaldDuck"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Dragon':
+    display_name: "&fDragon"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'Earth':
+    display_name: "&fEarth"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Elephant':
+    display_name: "&fElephant"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'Fire':
+    display_name: "&fFire"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'FireFlower':
+    display_name: "&fFireFlower"
+    categories: ['all', 'games']
+    pin_unicode: "&f"
+  'Flower':
+    display_name: "&fFlower"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'FlyingRocket':
+    display_name: "&fFlyingRocket"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Football':
+    display_name: "&fFootball"
+    categories: ['all', 'games']
+    pin_unicode: "&f"
+  'Frog':
+    display_name: "&fFrog"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'FruitBasket':
+    display_name: "&fFruitBasket"
+    categories: ['all', 'foods']
+    pin_unicode: "&f"
+  'Ghost':
+    display_name: "&fGhost"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Giraffe':
+    display_name: "&fGiraffe"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'Goofy':
+    display_name: "&fGoofy"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Goomba':
+    display_name: "&fGoomba"
+    categories: ['all', 'games']
+    pin_unicode: "&f"
+  'Gru':
+    display_name: "&fGru"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Heart':
+    display_name: "&fHeart"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Hippo':
+    display_name: "&fHippo"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'Hulk':
+    display_name: "&fHulk"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'IronMan':
+    display_name: "&fIronMan"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'KingJulien':
+    display_name: "&fKingJulien"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'KungFuPanda':
+    display_name: "&fKungFuPanda"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Labrador':
+    display_name: "&fLabrador"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'Lemon':
+    display_name: "&fLemon"
+    categories: ['all', 'foods']
+    pin_unicode: "&f"
+  'Lime':
+    display_name: "&fLime"
+    categories: ['all', 'foods']
+    pin_unicode: "&f"
+  'LuckyBlock':
+    display_name: "&fLuckyBlock"
+    categories: ['all', 'games']
+    pin_unicode: "&f"
+  'Luigi':
+    display_name: "&fLuigi"
+    categories: ['all', 'games']
+    pin_unicode: "&f"
+  'Mario':
+    display_name: "&fMario"
+    categories: ['all', 'games']
+    pin_unicode: "&f"
+  'Marty':
+    display_name: "&fMarty"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'McQueen':
+    display_name: "&fMcQueen"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'MegaMind':
+    display_name: "&fMegaMind"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Melon':
+    display_name: "&fMelon"
+    categories: ['all', 'foods']
+    pin_unicode: "&f"
+  'MexicanHat':
+    display_name: "&fMexicanHat"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'MickeyMouse':
+    display_name: "&fMickeyMouse"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'MikeWazowski':
+    display_name: "&fMikeWazowski"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Minions':
+    display_name: "&fMinions"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'MrsPotts':
+    display_name: "&fMrsPotts"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'MushroomBlue':
+    display_name: "&fMushroomBlue"
+    categories: ['all', 'games', 'foods']
+    pin_unicode: "&f"
+  'MushroomGreen':
+    display_name: "&fMushroomGreen"
+    categories: ['all', 'games', 'foods']
+    pin_unicode: "&f"
+  'MushroomRed':
+    display_name: "&fMushroomRed"
+    categories: ['all', 'games', 'foods']
+    pin_unicode: "&f"
+  'Orange':
+    display_name: "&fOrange"
+    categories: ['all', 'foods']
+    pin_unicode: "&f"
+  'Panda':
+    display_name: "&fPanda"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'Pear':
+    display_name: "&fPear"
+    categories: ['all', 'foods']
+    pin_unicode: "&f"
+  'Penguin':
+    display_name: "&fPenguin"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'Pizza':
+    display_name: "&fPizza"
+    categories: ['all', 'foods']
+    pin_unicode: "&f"
+  'PussInBoots':
+    display_name: "&fPussInBoots"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'RedPanda':
+    display_name: "&fRedPanda"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'Rocket':
+    display_name: "&fRocket"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'SafetyRing':
+    display_name: "&fSafetyRing"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Santa':
+    display_name: "&fSanta"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Shark':
+    display_name: "&fShark"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'Shrek':
+    display_name: "&fShrek"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Simba':
+    display_name: "&fSimba"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Snow':
+    display_name: "&fSnow"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Snowman':
+    display_name: "&fSnowman"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Spiderman':
+    display_name: "&fSpiderman"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Star':
+    display_name: "&fStar"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Starwars':
+    display_name: "&fStarwars"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Storm':
+    display_name: "&fStorm"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Strawberry':
+    display_name: "&fStrawberry"
+    categories: ['all', 'foods']
+    pin_unicode: "&f"
+  'Sullivan':
+    display_name: "&fSullivan"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Superman':
+    display_name: "&fSuperman"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'TennisBall':
+    display_name: "&fTennisBall"
+    categories: ['all', 'games']
+    pin_unicode: "&f"
+  'TheFlash':
+    display_name: "&fTheFlash"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Thor':
+    display_name: "&fThor"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Tiger':
+    display_name: "&fTiger"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'Timeglass':
+    display_name: "&fTimeglass"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'Toat':
+    display_name: "&fToat"
+    categories: ['all', 'games']
+    pin_unicode: "&f"
+  'Trophy':
+    display_name: "&fTrophy"
+    categories: ['all', 'games']
+    pin_unicode: "&f"
+  'Turtle':
+    display_name: "&fTurtle"
+    categories: ['all', 'animals']
+    pin_unicode: "&f"
+  'Water':
+    display_name: "&fWater"
+    categories: ['all', 'icons']
+    pin_unicode: "&f"
+  'WinnieThePooh':
+    display_name: "&fWinnieThePooh"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'WonderWoman':
+    display_name: "&fWonderWoman"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Yoda':
+    display_name: "&fYoda"
+    categories: ['all', 'movies']
+    pin_unicode: "&f"
+  'Yoshi':
+    display_name: "&fYoshi"
+    categories: ['all', 'games']
+    pin_unicode: "&f"

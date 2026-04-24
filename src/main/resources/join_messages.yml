@@ -1,0 +1,13 @@
+# Join Messages Module Configuration
+
+gui:
+  title: "&8Select Join Message"
+  size: 54
+
+# Messages are defined here
+messages:
+  Test:
+    order: 1
+    permission: "alchemypersona.join.test"
+    color: "<#E27F23>"
+    message: "%player% enters, smelling faintly of pumpkin spice and danger."

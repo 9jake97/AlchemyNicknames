@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import GradientGenerator from './components/GradientGenerator';
+import PersonaSelector from './components/PersonaSelector';
 
 function CodeEntryForm({ onSubmit }) {
   const [name, setName] = useState('');
@@ -159,18 +160,24 @@ function parseNickname(nick) {
 
 function App() {
   const [playerInfo, setPlayerInfo] = useState(null);
-  const [currentNickname, setCurrentNickname] = useState(null);
-  const parsedNickname = React.useMemo(() => parseNickname(currentNickname), [currentNickname]);
+  const [activeTab, setActiveTab] = useState('nickname');
+  const [personaData, setPersonaData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const fetchCurrentNickname = async (info) => {
+  const fetchPersonaData = async (info) => {
     if (!info?.token || !info?.apiBase) return;
+    setIsLoading(true);
     try {
-      const res = await fetch(`${info.apiBase}/api/nickname/current?token=${info.token}`);
+      const res = await fetch(`${info.apiBase}/api/nickname/data?token=${info.token}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.nickname) setCurrentNickname(data.nickname);
+        setPersonaData(data);
       }
-    } catch {}
+    } catch (e) {
+      console.error("Failed to fetch persona data:", e);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -181,32 +188,149 @@ function App() {
     if (player && token) {
       const info = { name: player, token, apiBase };
       setPlayerInfo(info);
-      fetchCurrentNickname(info);
+      fetchPersonaData(info);
     }
   }, []);
 
   const handleCodeEntry = (name, code) => {
-    const info = { name, token: code, apiBase: '' };
+    const info = { name, token: code, apiBase: '' }; // apiBase would need to be known or provided
     setPlayerInfo(info);
-    fetchCurrentNickname(info);
+    fetchPersonaData(info);
+  };
+
+  const handleSaveSelection = async (type, id) => {
+    if (!playerInfo) return;
+    
+    const body = {
+      token: playerInfo.token,
+      [type]: id
+    };
+
+    try {
+      const res = await fetch(`${playerInfo.apiBase}/api/nickname/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      
+      if (res.ok) {
+        // Refresh data to show new selection
+        fetchPersonaData(playerInfo);
+      }
+    } catch (e) {
+      console.error("Failed to save selection:", e);
+    }
   };
 
   if (!playerInfo) {
     return <CodeEntryForm onSubmit={handleCodeEntry} />;
   }
 
+  const tabs = [
+    { id: 'nickname', label: 'Nickname', icon: '✦' },
+    { id: 'pins', label: 'Pins', icon: '⚐' },
+    { id: 'tags', label: 'Tags', icon: '🏷' },
+    { id: 'joinMessages', label: 'Join Messages', icon: '✉' }
+  ];
+
   return (
     <div className="min-h-screen p-4 md:p-8 flex justify-center">
-      <div className="w-full max-w-6xl">
-        <GradientGenerator
-          playerInfo={playerInfo}
-          currentNickname={currentNickname}
-          parsedNickname={parsedNickname}
-          initialText={parsedNickname ? parsedNickname.text : (currentNickname ? stripTags(currentNickname) : playerInfo.name)}
-        />
+      <div className="w-full max-w-6xl space-y-6">
+        
+        {/* Header & Tabs */}
+        <div className="birdflop-panel p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF0080] to-[#8000FF] flex items-center justify-center text-xl shadow-lg">
+              {playerInfo.name[0].toUpperCase()}
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white">{playerInfo.name}</h2>
+              <p className="text-xs text-[var(--text-secondary)] uppercase tracking-tighter">Persona Identity Designer</p>
+            </div>
+          </div>
+
+          <div className="flex bg-black/40 rounded-xl p-1 p-1">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                  activeTab === tab.id 
+                    ? 'bg-[var(--accent-blue)] text-white shadow-lg' 
+                    : 'text-[var(--text-secondary)] hover:text-white'
+                }`}
+              >
+                <span className="text-lg leading-none">{tab.icon}</span>
+                <span className="hidden sm:inline">{tab.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="min-h-[600px]">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--accent-blue)]"></div>
+            </div>
+          ) : (
+            <>
+              {activeTab === 'nickname' && (
+                <GradientGenerator
+                  playerInfo={playerInfo}
+                  currentNickname={personaData?.nickname}
+                  initialText={personaData?.nickname ? stripTags(personaData.nickname) : playerInfo.name}
+                />
+              )}
+
+              {activeTab === 'pins' && (
+                <div className="birdflop-panel">
+                   <div className="p-6 border-b border-[var(--border-color)]">
+                    <h3 className="text-xl font-bold text-white">Select Your Pin</h3>
+                    <p className="text-sm text-[var(--text-secondary)]">Pins appear next to your name in chat.</p>
+                  </div>
+                  <PersonaSelector 
+                    type="Pin" 
+                    items={personaData?.pins || []} 
+                    onSelect={(id) => handleSaveSelection('selectedPin', id)} 
+                  />
+                </div>
+              )}
+
+              {activeTab === 'tags' && (
+                <div className="birdflop-panel">
+                  <div className="p-6 border-b border-[var(--border-color)]">
+                    <h3 className="text-xl font-bold text-white">Select Your Tag</h3>
+                    <p className="text-sm text-[var(--text-secondary)]">Tags appear as a prefix or suffix in chat.</p>
+                  </div>
+                  <PersonaSelector 
+                    type="Tag" 
+                    items={personaData?.tags || []} 
+                    onSelect={(id) => handleSaveSelection('selectedTag', id)} 
+                  />
+                </div>
+              )}
+
+              {activeTab === 'joinMessages' && (
+                <div className="birdflop-panel">
+                  <div className="p-6 border-b border-[var(--border-color)]">
+                    <h3 className="text-xl font-bold text-white">Select Join Message</h3>
+                    <p className="text-sm text-[var(--text-secondary)]">Choose the message shown when you join the server.</p>
+                  </div>
+                  <PersonaSelector 
+                    type="Join Message" 
+                    items={personaData?.joinMessages || []} 
+                    onSelect={(id) => handleSaveSelection('selectedJoinMessage', id)} 
+                  />
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
 
 export default App;

@@ -1,0 +1,57 @@
+size: 54
+paginated: true
+
+# Offset for the menu title (useful for shifting custom texture titles)
+# Use menu_title_offset for direct unicode characters
+# Use menu_title_offset_pixels for precise numeric centering (requires Negative Space Font)
+menu_title_offset: ""
+menu_title_offset_pixels: 0
+menu_title: "Join Messages"
+
+# Categories
+# Each category acts as a button (slot) and changes the GUI title (texture)
+categories:
+  'all':
+    title_unicode: "" # Add your unicode here if using a resource pack
+    display_name: "&bAll Messages"
+    slot: 4
+    material: PAPER
+    lore:
+      - '&7View all available join messages'
+
+# Tag Slots (Pins Area)
+tag_slots: [19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34]
+
+# Fixed Items
+fixed_items:
+  'page_previous_category':
+    material: PAPER
+    slot: 0
+    display_name: "&e« Previous Page"
+    action: "previous_page"
+
+  'page_next_category':
+    material: PAPER
+    slot: 8
+    display_name: "&eNext Page »"
+    action: "next_page"
+
+  'sidebar_next':
+    material: PAPER
+    display_name: "&eNext Page »"
+    slots: [26, 35, 44]
+    action: "next_page"
+
+  'sidebar_prev':
+    material: PAPER
+    display_name: "&e« Previous Page"
+    slots: [18, 27, 36]
+    action: "previous_page"
+
+  'clear_tag':
+    material: BARRIER
+    slot: 49
+    display_name: "&cClear Selection"
+    lore:
+      - '&e➥ Left-Click to clear join message'
+    action: "reset"

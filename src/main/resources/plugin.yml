@@ -1,37 +1,119 @@
-name: AlchemyNicknames
+name: AlchemyPersona
 version: '${project.version}'
-main: com.github.plunk.alchemynicknames.AlchemyNicknames
+main: com.github.plunk.alchemypersona.AlchemyPersona
 api-version: '1.21'
-prefix: 'AlchemyNicknames'
-description: Modern nickname plugin for the Alchemy series.
-authors: [ Plunk ]
-softdepend: [ PlaceholderAPI ]
+prefix: 'AlchemyPersona'
+description: Unified cosmetics and player persona plugin for the Alchemy series.
+authors: [ Plunk, Antigravity ]
+softdepend: [ PlaceholderAPI, LuckPerms, Nexo, InteractiveChat ]
+
 commands:
+  # Nicknames
   nickname:
     description: Set your nickname.
     aliases: [ nick ]
-    permission: alchemynicknames.nickname
+    permission: alchemypersona.nickname
   unnick:
     description: Remove your nickname.
-    permission: alchemynicknames.nickname
-  nickimport:
-    description: Import nicknames from other plugins.
-    permission: alchemynicknames.admin
-    usage: /nickimport <essentials|cmi>
+    permission: alchemypersona.nickname
+  personaimport:
+    description: Import data from other plugins.
+    usage: /personaimport <legacy|joinmessages|tags|essentials|cmi|all>
+    permission: alchemypersona.admin
   nicknameeditor:
-    description: Open the RGB nickname designer
+    description: Open the RGB persona designer
     usage: /nicknameeditor
-    permission: alchemynicknames.nickname
+    permission: alchemypersona.nickname
+    aliases: [ personaeditor, designer ]
+
+  # Pins
+  pins:
+    description: Open the pins menu or manage player pins
+    usage: /pins [give|take|reload|page|category]
+    aliases: [lpp, pin, alchemypins, apins]
+
+  # Tags
+  tags:
+    description: Open the Tags GUI
+    usage: /tags
+    aliases: [atags]
+
+  # Join Messages
+  alchemyjoinmessages:
+    description: Manage join messages
+    usage: /ajm gui
+    aliases: [ajm, cjm, jm, joinmessages]
+
 permissions:
-  alchemynicknames.nickname:
+  # New Unified Permissions
+  alchemypersona.nickname:
     description: Allows a player to change their own nickname.
     default: op
-  alchemynicknames.others:
-    description: Allows a player to change other players' nicknames.
+  alchemypersona.pins:
+    description: Allows access to pins menu.
     default: op
-  alchemynicknames.colors:
-    description: Allows a player to use colors and gradients in their nickname.
+  alchemypersona.tags:
+    description: Allows access to tags menu.
     default: op
+  alchemypersona.joinmessages:
+    description: Allows access to join messages menu.
+    default: op
+  alchemypersona.admin:
+    description: Administrative access for all persona modules.
+    default: op
+
+  # Legacy Backward Compatibility
+  alchemynicknames.nickname:
+    description: Legacy permission for nicknames
+    children:
+      alchemypersona.nickname: true
   alchemynicknames.admin:
-    description: Allows a player to use administrative commands like nickimport.
-    default: op
+    description: Legacy admin permission for nicknames
+    children:
+      alchemypersona.admin: true
+  alchemynicknames.others:
+    description: Legacy permission to change others' nicknames
+    children:
+      alchemypersona.admin: true
+
+  alchemypins.admin:
+    description: Legacy admin permission for pins
+    children:
+      alchemypersona.admin: true
+  alchemypins.use:
+    description: Legacy permission for pins
+    children:
+      alchemypersona.pins: true
+  lpp.pin.*:
+    description: Legacy wildcard for pin ownership
+    default: false
+  
+  alchemytags.admin:
+    description: Legacy admin permission for tags
+    children:
+      alchemypersona.admin: true
+  alchemytags.use:
+    description: Legacy permission for tags
+    children:
+      alchemypersona.tags: true
+  deluxetags.tag.*:
+    description: Legacy wildcard for tag ownership
+    default: false
+
+  ajm.admin:
+    description: Legacy admin permission for join messages
+    children:
+      alchemypersona.admin: true
+  ajm.reload:
+    description: Legacy reload permission for join messages
+    children:
+      alchemypersona.admin: true
+  ajm.gui:
+    description: Legacy permission for join message GUI
+    children:
+      alchemypersona.joinmessages: true
+
+  AlchemyPersona.admin:
+    description: Legacy admin permission used in earlier pin module versions
+    children:
+      alchemypersona.admin: true

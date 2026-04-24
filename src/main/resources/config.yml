@@ -1,34 +1,15 @@
-# AlchemyNicknames Configuration
+# AlchemyPersona Core Configuration
 
-# Settings for nicknames
-nickname:
-  min-length: 3
-  max-length: 16
-  # RegEx for blacklisted words or patterns
-  blacklist:
-    - "admin"
-    - "owner"
-    - "staff"
-  # Default format if not using placeholders
-  # %nickname% is the player's nickname or real name
-  display-format: "<gray>[<gold>Nick</gold>]</gray> %nickname%"
-
-# Integrated message system (MiniMessage)
+# Global messages
 messages:
-  prefix: "<gray>[<gold>AlchemyNicknames</gold>]</gray> "
-  nickname-set: "<green>Your nickname has been set to: </green>%nickname%"
-  nickname-reset: "<green>Your nickname has been reset.</green>"
-  nickname-others-set: "<green>Nickname for <white>%player%</white> set to: </green>%nickname%"
+  prefix: "<gray>[<gold>AlchemyPersona</gold>]</gray> "
   no-permission: "<red>You don't have permission to do that!</red>"
   player-not-found: "<red>Player not found.</red>"
-  too-short: "<red>That nickname is too short! (Min: %min%)</red>"
-  too-long: "<red>That nickname is too long! (Max: %max%)</red>"
-  blacklisted: "<red>That nickname contains blacklisted words.</red>"
 
-# Web API Settings (for the Nickname Designer)
+# Web API Settings (for the Persona Designer)
 web:
   port: 8085
   # The public base URL of your server (used as the API endpoint embedded in links)
   base-url: "https://stats.bloc.kz"
-  # The URL of the Nickname Designer frontend (GitHub Pages or custom domain)
+  # The URL of the Persona Designer frontend
   editor-url: "https://nickname.bloc.kz"

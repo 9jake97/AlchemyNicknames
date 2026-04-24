@@ -1,0 +1,945 @@
+# Tags Module Settings
+debug: false
+
+default_locked_tag:
+  material: NAME_TAG
+  display_name: "&c%name% (Locked)"
+  lore:
+    - "&cYou do not own this tag."
+    - "&7Purchase it at store.example.com"
+
+default_unlocked_lore:
+  - "&e➥ Left-Click to select"
+
+default_permission: "deluxetags.tag.%name%"
+default_material: NAME_TAG
+
+tags:
+  'GOAT':
+    display_name: 'GOAT'
+    categories: ['all']
+    tag: ' &8[#FF00F8&lɢ#F433D8&lᴏ#E866B9&lᴀ#DD9999&lᴛ&8]'
+    order: 1
+    permission: 'deluxetags.tag.aj'
+    lore:
+      - '&cAJ''''s unique tag'
+  'Builder':
+    display_name: 'Builder'
+    categories: ['all']
+    tag: ' &8[&x&F&B&0&0&0&0&lʙ&x&F&C&0&5&4&B&lᴜ&x&F&E&0&A&9&5&lɪ&x&F&F&0&F&E&0&lʟ&x&A&E&0&B&D&C&lᴅ&x&5&E&0&6&D&8&lᴇ&x&0&D&0&2&D&4&lʀ&8]'
+    order: 2
+    permission: 'deluxetags.tag.builder'
+    lore:
+      - '&f'
+  'Grinder':
+    display_name: 'Grinder'
+    categories: ['all']
+    tag: ' &8[&4ɢʀɪɴᴅᴇʀ&8]'
+    order: 3
+    permission: 'deluxetags.tag.grinder'
+    lore:
+      - '&f'
+  'Sour':
+    display_name: 'Sour'
+    categories: ['all']
+    tag: ' &8[&x&E&0&F&B&0&7&lѕ&x&A&5&F&E&0&2&lᴏ&x&A&5&F&E&0&2&lᴜ&x&E&0&F&B&0&7&lʀ&8]'
+    order: 4
+    permission: 'deluxetags.tag.sour'
+    lore:
+      - '&f'
+  'Simp':
+    display_name: 'Simp'
+    categories: ['all']
+    tag: ' &8[&5sɪᴍᴘ&8]'
+    order: 5
+    permission: 'deluxetags.tag.Simp'
+    lore:
+      - '&f'
+  'Nuker':
+    display_name: 'Nuker'
+    categories: ['all']
+    tag: ' &8[&cɴᴜᴋᴇʀ&8]'
+    order: 6
+    permission: 'deluxetags.tag.nuker'
+    lore:
+      - '&f'
+  'eGirl':
+    display_name: 'eGirl'
+    categories: ['all']
+    tag: ' &8[&dᴇɢɪʀʟ&8]'
+    order: 7
+    permission: 'deluxetags.tag.eGirl'
+    lore:
+      - '&f'
+  'eBoy':
+    display_name: 'eBoy'
+    categories: ['all']
+    tag: ' &8[&9ᴇʙᴏʏ&8]'
+    order: 8
+    permission: 'deluxetags.tag.eBoy'
+    lore:
+      - '&f'
+  'Lucky':
+    display_name: 'Lucky'
+    categories: ['all']
+    tag: ' &8[&eʟᴜᴄᴋʏ&8]'
+    order: 9
+    permission: 'deluxetags.tag.Lucky'
+    lore:
+      - '&f'
+  'Retro':
+    display_name: 'Retro'
+    categories: ['all']
+    tag: ' &8[&6ʀᴇᴛʀᴏ&8]'
+    order: 10
+    permission: 'deluxetags.tag.Retro'
+    lore:
+      - '&f'
+  'Angel':
+    display_name: 'Angel'
+    categories: ['all']
+    tag: ' &8[&fᴀɴɢᴇʟ&8]'
+    order: 11
+    permission: 'deluxetags.tag.Angel'
+    lore:
+      - '&f'
+  'Sheesh':
+    display_name: 'Sheesh'
+    categories: ['all']
+    tag: ' &8[#daa3ffsʜᴇᴇsʜ&8]'
+    order: 12
+    permission: 'deluxetags.tag.Sheesh'
+    lore:
+      - '&f'
+  'Godly':
+    display_name: 'Godly'
+    categories: ['all']
+    tag: ' &8[&eɢᴏᴅʟʏ&8]'
+    order: 13
+    permission: 'deluxetags.tag.Godly'
+    lore:
+      - '&f'
+  'King':
+    display_name: 'King'
+    categories: ['all']
+    tag: ' &8[#5ebfffᴋɪɴɢ&8]'
+    order: 14
+    permission: 'deluxetags.tag.King'
+    lore:
+      - '&f'
+  'Queen':
+    display_name: 'Queen'
+    categories: ['all']
+    tag: ' &8[#ff5eb9ꞯᴜᴇᴇɴ&8]'
+    order: 15
+    permission: 'deluxetags.tag.Queen'
+    lore:
+      - '&f'
+  'OG':
+    display_name: 'OG'
+    categories: ['all']
+    tag: ' &8[#ff6021ᴏɢ&8]'
+    order: 16
+    permission: 'deluxetags.tag.OG'
+    lore:
+      - '&f'
+  'Guh':
+    display_name: 'Guh'
+    categories: ['all']
+    tag: ' &8[#AC19FB&l&oɢ#8B34FC&l&oᴜ#6B4FFD&l&oʜ#4A6AFE&l&o?#2985FF&l&o!&8]'
+    order: 17
+    permission: 'deluxetags.tag.guh'
+    lore:
+      - '&f'
+  'Noob':
+    display_name: 'Noob'
+    categories: ['all']
+    tag: ' &8[#b7ffa3ɴᴏᴏʙ&8]'
+    order: 18
+    permission: 'deluxetags.tag.Noob'
+    lore:
+      - '&f'
+  'AFK':
+    display_name: 'AFK'
+    categories: ['all']
+    tag: ' &8[#5203FB&lᴀ#625EFF&lғ#9598AD&lᴋ&8]'
+    order: 19
+    permission: 'deluxetags.tag.AFK'
+    lore:
+      - '&f'
+  'NoSkill':
+    display_name: 'NoSkill'
+    categories: ['all']
+    tag: ' &8[#a1ff2eɴᴏsᴋɪʟʟ&8]'
+    order: 20
+    permission: 'deluxetags.tag.NoSkill'
+    lore:
+      - '&f'
+  'OP':
+    display_name: 'OP'
+    categories: ['all']
+    tag: ' &8[#ff2e43ᴏᴘ&8]'
+    order: 21
+    permission: 'deluxetags.tag.OP'
+    lore:
+      - '&f'
+  'Salty':
+    display_name: 'Salty'
+    categories: ['all']
+    tag: ' &8[#8afffbsᴀʟᴛʏ&8]'
+    order: 22
+    permission: 'deluxetags.tag.Salty'
+    lore:
+      - '&f'
+  'Toxic':
+    display_name: 'Toxic'
+    categories: ['all']
+    tag: ' &8[#f78affᴛᴏxɪᴄ&8]'
+    order: 23
+    permission: 'deluxetags.tag.Toxic'
+    lore:
+      - '&f'
+  'Rich':
+    display_name: 'Rich'
+    categories: ['all']
+    tag: ' &8[#42baffʀɪᴄʜ&8]'
+    order: 24
+    permission: 'deluxetags.tag.Rich'
+    lore:
+      - '&f'
+  'Legendary':
+    display_name: 'Legendary'
+    categories: ['all']
+    tag: ' &8[#F5C031&lʟ#F1BB30&lᴇ#ECB62F&lɢ#E8B12E&lᴇ#E3AD2E&lɴ#DFA82D&lᴅ#DAA32C&lᴀ#D69E2B&lʀ#D1992A&lʏ&8]'
+    order: 25
+    permission: 'deluxetags.tag.legendary'
+    lore:
+      - '&a Exclusive Legendary Crate Tag'
+  'Beta':
+    display_name: 'Beta'
+    categories: ['all']
+    tag: ' &8[&x&2&0&5&b&9&b&lʙ&x&2&f&7&1&a&d&lᴇ&x&3&d&8&6&c&0&lᴛ&x&4&c&9&c&d&2&lᴀ&8]'
+    order: 26
+    permission: 'deluxetags.tag.Beta'
+    lore:
+      - '&f'
+  'Eerie':
+    display_name: 'Eerie'
+    categories: ['all']
+    tag: ' &8[#444444&lᴇ#553355&lᴇ#662266&lʀ#771177&lɪ#880088&lᴇ&8]'
+    order: 27
+    permission: 'deluxetags.tag.palegarden1'
+    lore:
+      - '&f'
+  'Pale_Survivor':
+    display_name: 'Pale Survivor'
+    categories: ['all']
+    tag: ' &8[#E6E6E6&lᴘ#E3E2DE&lᴀ#E0DDD5&lʟ#DDD9CD&lᴇ #D7D0BC&ls#D4CCB3&lᴜ#D1C8AB&lʀ#CEC3A2&lᴠ#CBBF9A&lɪ#C8BB91&lᴠ#C5B689&lᴏ#C2B280&lʀ&8]'
+    order: 28
+    permission: 'deluxetags.tag.palegarden2'
+    lore:
+      - '&f'
+  'Resin_Seeker':
+    display_name: 'Resin Seeker'
+    categories: ['all']
+    tag: ' &8[#4E2A04&lʀ#5A350C&lᴇ#674115&ls#734C1D&lɪ#7F5725&lɴ #986E36&ls#A57A3E&lᴇ#B18546&lᴇ#BD904E&lᴋ#CA9C57&lᴇ#D6A75F&lʀ&8]'
+    order: 29
+    permission: 'deluxetags.tag.palegarden3'
+    lore:
+      - '&f'
+  'Epic':
+    display_name: 'Epic'
+    categories: ['all']
+    tag: ' &8[#8941A9&lᴇ#904CAE&lᴘ#9858B3&lɪ#9F63B8&lᴄ&8]'
+    order: 30
+    permission: 'deluxetags.tag.epic'
+    lore:
+      - '&a Exclusive Epic Crate Tag'
+  'AT&T':
+    display_name: 'AT&T'
+    categories: ['all']
+    tag: ' &8[#65F2CC&lᴀᴛ&ᴛ&8]'
+    order: 31
+    permission: 'deluxetags.tag.AT&T'
+    lore:
+      - '&f'
+  'Killer':
+    display_name: 'Killer'
+    categories: ['all']
+    tag: ' &8[☠ &c&lᴋɪʟʟᴇʀ&8]'
+    order: 32
+    permission: 'deluxetags.tag.killer'
+    lore:
+      - '&f'
+  'Destroyer':
+    display_name: 'Destroyer'
+    categories: ['all']
+    tag: ' &8[&4&lᴅᴇsᴛʀᴏʏᴇʀ&8]'
+    order: 33
+    permission: 'deluxetags.tag.destroyer'
+    lore:
+      - '&f'
+  'Punisher':
+    display_name: 'Punisher'
+    categories: ['all']
+    tag: ' &8[⚔ &6&lᴘᴜɴɪsʜᴇʀ&8]'
+    order: 34
+    permission: 'deluxetags.tag.punisher'
+    lore:
+      - '&f'
+  'Invincible':
+    display_name: 'Invincible'
+    categories: ['all']
+    tag: ' &8[&e&lɪɴᴠɪɴᴄɪʙʟᴇ&8]'
+    order: 35
+    permission: 'deluxetags.tag.invincible'
+    lore:
+      - '&f'
+  'Pidgeon':
+    display_name: 'Pidgeon'
+    categories: ['all']
+    tag: ' &8[#84B0B2&lᴘɪɢᴇᴏɴ&8]'
+    order: 36
+    permission: 'deluxetags.tag.pidgeon'
+    lore:
+      - '&f'
+  'Eperor':
+    display_name: 'Eperor'
+    categories: ['all']
+    tag: ' &8[#610c04&lᴇᴍᴘᴇʀᴏʀ&8]'
+    order: 37
+    permission: 'deluxetags.tag.emperor'
+    lore:
+      - '&f'
+  'Unconstitutional':
+    display_name: 'Unconstitutional'
+    categories: ['all']
+    tag: ' &8[#979696&lᴜɴᴄᴏɴsᴛɪᴛᴜᴛɪᴏɴᴀʟ&8]'
+    order: 38
+    permission: 'deluxetags.tag.unconstitutional'
+    lore:
+      - '&f'
+  'AlphaBuilder':
+    display_name: 'AlphaBuilder'
+    categories: ['all']
+    tag: ' &8[#FBA0C2&lᴀ#FB99C2&lʟ#FC93C3&lᴘ#FC8CC3&lʜ#FC85C3&lᴀ#FD7FC4&l #FD78C4&lʙ#FD71C4&lᴜ#FE6BC5&lɪ#FE64C5&lʟ#FE5DC5&lᴅ#FF57C6&lᴇ#FF50C6&lʀ&8]'
+    order: 39
+    permission: 'deluxetags.tag.alphaBuilder'
+    lore:
+      - '&f'
+  '100CHF':
+    display_name: '100CHF'
+    categories: ['all']
+    tag: ' &8[#465871&l1#264B7D&l0#1C4781&l0#1C4781&lᴄ#264B7D&lʜ#465871&lꜰ&8]'
+    order: 40
+    permission: 'deluxetags.tag.100CHF'
+    lore:
+      - '&f'
+  'Penguin':
+    display_name: 'Penguin'
+    categories: ['all']
+    tag: ' &8[#125DBF&lᴘ#1252B5&lᴇ#1148AA&lɴ#113DA0&lɢ#103295&lᴜ#10288B&lɪ#0F1D80&lɴ&8]'
+    order: 41
+    permission: 'deluxetags.tag.penguin'
+    lore:
+      - '&f'
+  'Diplomat':
+    display_name: 'Diplomat'
+    categories: ['all']
+    tag: ' &8[#53D787&lᴅ#61DB97&lɪ#6FDFA7&lᴘ#7DE3B7&lʟ#8BE8C6&lᴏ#99ECD6&lᴍ#A7F0E6&lᴀ#B5F4F6&lᴛ&8]'
+    order: 42
+    permission: 'deluxetags.tag.emissary1'
+    lore:
+      - '&f'
+  'SilentHunter':
+    display_name: 'SilentHunter'
+    categories: ['all']
+    tag: ' &8[#321E1A&ls#3C1E1B&lɪ#461E1B&lʟ#4F1F1C&lᴇ#591F1C&lɴ#631F1D&lᴛ#6D1F1D&l #761F1E&lʜ#801F1E&lᴜ#8A201F&lɴ#94201F&lᴛ#9D2020&lᴇ#A72020&lʀ&8]'
+    order: 43
+    permission: 'deluxetags.tag.emissary2'
+    lore:
+      - '&f'
+  'Scout':
+    display_name: 'Scout'
+    categories: ['all']
+    tag: ' &8[#ADE7F6&ls#88D6F1&lᴄ#63C5ED&lᴏ#3EB3E8&lᴜ#19A2E3&lᴛ&8]'
+    order: 44
+    permission: 'deluxetags.tag.emissary3'
+    lore:
+      - '&f'
+  'Sparrow':
+    display_name: 'Sparrow'
+    categories: ['all']
+    tag: ' &8[#8067D7&ls#8873D1&lᴘ#907FCA&lᴀ#988CC4&lʀ#A098BD&lʀ#A8A4B7&lᴏ#B0B0B0&lᴡ&8]'
+    order: 45
+    permission: 'deluxetags.tag.emissary4'
+    lore:
+      - '&f'
+  'Firefighter':
+    display_name: 'Firefighter'
+    categories: ['all']
+    tag: ' &8[#C41919&lꜰ#C6231A&lɪ#C72C1C&lʀ#C9361D&lᴇ#CA401E&lꜰ#CC4A20&lɪ#CD5321&lɢ#CF5D22&lʜ#D06723&lᴛ#D27025&lᴇ#D37A26&lʀ&8]'
+    order: 46
+    permission: 'deluxetags.tag.firefighter'
+    lore:
+      - '&f'
+  'Guffy Boy':
+    display_name: 'Guffy Boy'
+    categories: ['all']
+    tag: ' &8[#EB5CD1&lɢ#DA3DBD&lᴜ#C81EA9&lꜰ#AC32B1&lꜰ#9046BA&lʏ #596FCA&lʙ#3D83D3&lᴏ#2197DB&lʏ&8]'
+    order: 47
+    permission: 'deluxetags.tag.guffyboy'
+    lore:
+      - '&f'
+  'POOH':
+    display_name: 'POOH'
+    categories: ['all']
+    tag: ' &8[&6&lᴘᴏᴏʜ&8]'
+    order: 48
+    permission: 'deluxetags.tag.pooh'
+    lore:
+      - '&f'
+  'woodcutter':
+    display_name: 'woodcutter'
+    categories: ['all']
+    tag: ' &8[#5B2F0E&lᴡ#5E3413&lᴏ#613A19&lᴏ#643F1E&lᴅ#684423&lᴄ#6B4928&lʜ#6E4F2E&lᴏ#715433&lᴘ#745938&lᴘ#513D21&lᴇ#2D210A&lʀ&8]'
+    order: 49
+    permission: 'deluxetags.tag.woodcutter'
+    lore:
+      - '&f'
+  'thunderstruck':
+    display_name: 'thunderstruck'
+    categories: ['all']
+    tag: ' &8[#F9CD5B&l&oᴛ#F2D061&l&oʜ#EBD268&l&oᴜ#E4D56E&l&oɴ#DDD874&l&oᴅ#D6DA7B&l&oᴇ#CFDD81&l&oʀ#D5E194&l&os#DBE6A7&l&oᴛ#E2EABA&l&oʀ#E8EECD&l&oᴜ#EEF3E0&l&oᴄ#F4F7F3&l&oᴋ&8]'
+    order: 50
+    permission: 'deluxetags.tag.thunderstruck'
+    lore:
+      - '&f'
+  'winterredbull':
+    display_name: 'winterredbull'
+    categories: ['all']
+    tag: ' &8[#2417F9&lᴡ#2B23F6&lɪ#3230F2&lɴ#393CEF&lᴛ#4048EC&lᴇ#4755E8&lʀ#4E61E5&lʀ#556DE2&lᴇ#5C7ADE&lᴅ#6386DB&lʙ#6A92D8&lᴜ#719FD4&lʟ#78ABD1&lʟ&8]'
+    order: 51
+    permission: 'deluxetags.tag.winterredbull'
+    lore:
+      - '&f'
+  'BMW':
+    display_name: 'BMW'
+    categories: ['all']
+    tag: ' &8[#2626A6&lʙ#1E1EC7&lᴍ#2626A6&lᴡ&8]'
+    order: 52
+    permission: 'deluxetags.tag.BMW'
+    lore:
+      - '&f'
+  'GuffTheGoat':
+    display_name: 'GuffTheGoat'
+    categories: ['all']
+    tag: ' &8[#FF5618&lɢ#FD5017&lᴜ#FB4B16&lꜰ#F94515&lꜰ #F53A13&lᴛ#F33412&lʜ#F12E11&lᴇ #ED230F&lɢ#EB1D0E&lᴏ#E9180D&lᴀ#E7120C&lᴛ&8]'
+    order: 53
+    permission: 'deluxetags.tag.guffthegoat'
+    lore:
+      - '&f'
+  'piggy':
+    display_name: 'piggy'
+    categories: ['all']
+    tag: ' &8[#e3256b&lᴘɪɢɢʏ&8]'
+    order: 54
+    permission: 'deluxetags.tag.piggy'
+    lore:
+      - '&f'
+  'hopedesigner':
+    display_name: 'hopedesigner'
+    categories: ['all']
+    tag: ' &8[#E2D528&lʜ#E2CE28&lᴏ#E2C728&lᴘ#E2C028&lᴇ #E2B227&lᴅ#E3AC27&lᴇ#E3A527&ls#E39E27&lɪ#E39727&lɢ#E39026&lɴ#E38926&lᴇ#E38226&lʀ&8]'
+    order: 55
+    permission: 'deluxetags.tag.hopedesigner'
+    lore:
+      - '&f'
+  'cowboy':
+    display_name: 'cowboy'
+    categories: ['all']
+    tag: ' &8[#FF4E00&lᴄ#FC5F12&lᴏ#F86F24&lᴡ#F58036&lʙ#F19048&lᴏ#EEA15A&lʏ&8]'
+    order: 56
+    permission: 'deluxetags.tag.halloween2025_1'
+    lore:
+      - '&f'
+  'cursed':
+    display_name: 'cursed'
+    categories: ['all']
+    tag: ' &8[#FFFFFF&lᴄ#E0E0E0&lᴜ#C1C1C1&lʀ#A2A2A2&ls#838383&lᴇ#646464&lᴅ&8]'
+    order: 57
+    permission: 'deluxetags.tag.halloween2025_2'
+    lore:
+      - '&f'
+  'halloween2025':
+    display_name: 'halloween2025'
+    categories: ['all']
+    tag: ' &8[#F40E0E&lʜ#E70E0E&lᴀ#D90F0F&lʟ#CC0F0F&lʟ#BE0F0F&lᴏ#B11010&lᴡ#A31010&lᴇ#961010&lᴇ#881010&lɴ #6D1111&l2#601111&l0#521212&l2#451212&l5&8]'
+    order: 58
+    permission: 'deluxetags.tag.halloween2025_3'
+    lore:
+      - '&f'
+  'haunted':
+    display_name: 'haunted'
+    categories: ['all']
+    tag: ' &8[#B8FAFF&lʜ#B9F0F4&lᴀ#BAE6E9&lᴜ#BBDCDE&lɴ#BBD1D3&lᴛ#BCC7C8&lᴇ#BDBDBD&lᴅ&8]'
+    order: 59
+    permission: 'deluxetags.tag.halloween2025_4'
+    lore:
+      - '&f'
+  'spooktober':
+    display_name: 'spooktober'
+    categories: ['all']
+    tag: ' &8[#FD7D0B&ls#F56F0A&lᴘ#ED6109&lᴏ#E55307&lᴏ#DD4506&lᴋ#D53805&lᴛ#CD2A04&lᴏ#C51C02&lʙ#BD0E01&lᴇ#B50000&lʀ&8]'
+    order: 60
+    permission: 'deluxetags.tag.halloween2025_5'
+    lore:
+      - '&f'
+  'degens':
+    display_name: 'degens'
+    categories: ['all']
+    tag: ' &8[#FF8900&lᴅ#D09D2C&lᴇ#A1B158&lɢ#73C585&lᴇ#44D9B1&lɴ#15EDDD&ls&8]'
+    order: 61
+    permission: 'deluxetags.tag.degens'
+    lore:
+      - '&f'
+  'egirlleader':
+    display_name: 'egirlleader'
+    categories: ['all']
+    tag: ' &8[#FF00A5&lᴇɢɪʀʟ ʟᴇᴀᴅᴇʀ&8]'
+    order: 62
+    permission: 'deluxetags.tag.egirlleader'
+    lore:
+      - '&f'
+  'richpenguin':
+    display_name: 'richpenguin'
+    categories: ['all']
+    tag: ' &8[#46B527&lʀ#3CAC1F&lɪ#31A416&lᴄ#279B0E&lʜ #2024C4&lᴘ#2833BE&lᴇ#3141B7&lɴ#3950B1&lɢ#415FAA&lᴜ#4A6DA4&lɪ#527C9D&lɴ&8]'
+    order: 63
+    permission: 'deluxetags.tag.richpenguin'
+    lore:
+      - '&f'
+  'Pole':
+    display_name: 'Pole'
+    categories: ['all']
+    tag: ' &8[#7F213B&lᴘ#8D0028&lᴏ#C68094&lʟ#FFFFFF&lᴇ&8]'
+    order: 64
+    permission: 'deluxetags.tag.Pole'
+    lore:
+      - '&f'
+  'pole':
+    display_name: 'pole'
+    categories: ['all']
+    tag: ' &8[#FB0000&lᴘ#FC5555&lᴏ#FEAAAA&lʟ#FFFFFF&lᴇ&8]'
+    order: 65
+    permission: 'deluxetags.tag.pole'
+    lore:
+      - '&f'
+  'Huntr/x':
+    display_name: 'Huntr/x'
+    categories: ['all']
+    tag: ' &8[#C23B97&lʜᴜɴᴛʀ/x&8]'
+    order: 66
+    permission: 'deluxetags.tag.Huntr/x'
+    lore:
+      - '&f'
+  'KUBBIE':
+    display_name: 'KUBBIE'
+    categories: ['all']
+    tag: ' &8[&4&lᴋ&c&lᴜ&4&lʙ&c&lʙ&4&lɪ&c&lᴇ&8]'
+    order: 67
+    permission: 'deluxetags.tag.KUBBIE'
+    lore:
+      - '&f'
+  'CRUMZ$':
+    display_name: 'CRUMZ$'
+    categories: ['all']
+    tag: ' &8[#54DAF4$#549CD5$#545EB6$&8]'
+    order: 68
+    permission: 'deluxetags.tag.crumz$'
+    lore:
+      - '&f'
+  'daddy':
+    display_name: 'daddy'
+    categories: ['all']
+    tag: ' &8[#830E0E&lᴅ#411D77&lᴀ#830E0E&lᴅ#411D77&lᴅ#830E0E&lʏ&8]'
+    order: 69
+    permission: 'deluxetags.tag.daddy'
+    lore:
+      - '&f'
+  'mrbear':
+    display_name: 'mrbear'
+    categories: ['all']
+    tag: ' &8[#D4AF37&lᴍʀ ʙᴇᴀʀ&8]'
+    order: 70
+    permission: 'deluxetags.tag.mrbear'
+    lore:
+      - '&f'
+  'Bankrupt':
+    display_name: 'Bankrupt'
+    categories: ['all']
+    tag: ' &8[#296537&l$#0D6622&l&mʙ#2E7834&l&mᴀ#4E8A45&l&mɴ#6F9C57&l&mᴋ#90AF69&l&mʀ#B1C17B&l&mᴜ#D1D38C&l&mᴘ#F2E59E&l&mᴛ#C4BB8B&l$&8]'
+    order: 71
+    permission: 'deluxetags.tag.Bankrupt'
+    lore:
+      - '&f'
+  'bonecollector':
+    display_name: 'bonecollector'
+    categories: ['all']
+    tag: ' &8[#E8E8E8&lʙ#DFE0E2&lᴏ#D6D9DC&lɴ#CED1D5&lᴇ#C5CACF&l #BCC2C9&lᴄ#B3BBC3&lᴏ#ABB3BC&lʟ#A2ACB6&lʟ#99A4B0&lᴇ#909DAA&lᴄ#8895A3&lᴛ#7F8E9D&lᴏ#768697&lʀ&8]'
+    order: 72
+    permission: 'deluxetags.tag.bonecollector'
+    lore:
+      - '&f'
+  'sweettooth':
+    display_name: 'sweettooth'
+    categories: ['all']
+    tag: ' &8[#FCBEC9&ls#FCC0B5&lᴡ#FCC3A1&lᴇ#FCC58D&lᴇ#FCC779&lᴛ #FCCC50&lᴛ#FCCE3C&lᴏ#FCD028&lᴏ#FCD214&lᴛ#FCD400&lʜ&8]'
+    order: 73
+    permission: 'deluxetags.tag.sweettooth'
+    lore:
+      - '&f'
+  'zombiebait':
+    display_name: 'zombiebait'
+    categories: ['all']
+    tag: '&8[#31CB31&lᴢ#39B72C&lᴏ#40A227&lᴍ#488E22&lʙ#507A1D&lɪ#586619&lᴇ#5F5114&l #673D0F&lʙ#6F290A&lᴀ#761405&lɪ#7E0000&lᴛ&8]'
+    order: 74
+    permission: 'deluxetags.tag.zombiebait'
+    lore:
+      - '&f'
+  'minimonster':
+    display_name: 'minimonster'
+    categories: ['all']
+    tag: ' &8[#9731CA&lᴍ#A033B8&lɪ#A934A5&lɴ#B33693&lɪ#BC3881&l-#C53A6E&lᴍ#CE3B5C&lᴏ#D73D49&lɴ#E03F37&ls#EA4125&lᴛ#F34212&lᴇ#FC4400&lʀ&8]'
+    order: 75
+    permission: 'deluxetags.tag.minimonster'
+    lore:
+      - '&f'
+  'boo-tyful':
+    display_name: 'boo-tyful'
+    categories: ['all']
+    tag: ' &8[#00CCCF&lʙ#15CDD2&lᴏ#2BCED4&lᴏ#40CFD7&l-#56D1D9&lᴛ#6BD2DC&lʏ#80D3DE&lꜰ#96D4E1&lᴜ#ABD5E3&lʟ&8]'
+    order: 76
+    permission: 'deluxetags.tag.boo-tyful'
+    lore:
+      - '&f'
+  'witchsapprentice':
+    display_name: 'witchsapprentice'
+    categories: ['all']
+    tag: ' &8[#4A0080&lᴡ#500B85&lɪ#56178B&lᴛ#5C2290&lᴄ#622E95&lʜ#67399B&l''#6D44A0&ls#7350A5&l #795BAB&lᴀ#7F67B0&lᴘ#8572B6&lᴘ#8B7EBB&lʀ#9189C0&lᴇ#9694C6&lɴ#9CA0CB&lᴛ#A2ABD0&lɪ#A8B7D6&lᴄ#AEC2DB&lᴇ&8]'
+    order: 77
+    permission: 'deluxetags.tag.witchsapprentice'
+    lore:
+      - '&f'
+  'terrified':
+    display_name: 'terrified'
+    categories: ['all']
+    tag: ' &8[#F2DBB1&lᴛ#EADBB7&lᴇ#E1DCBE&lʀ#D9DCC4&lʀ#D0DCCA&lɪ#C8DCD0&lꜰ#BFDDD7&lɪ#B7DDDD&lᴇ#AEDDE3&lᴅ&8]'
+    order: 78
+    permission: 'deluxetags.tag.terrified'
+    lore:
+      - '&f'
+  'HBuildComp':
+    display_name: 'HBuildComp'
+    categories: ['all']
+    tag: '&8[#4F4F4F&l&ka#FF7200&l&ks#FF7200&lʜ#F36B00&lᴀ#E86400&lᴜ#DC5D00&lɴ#D15600&lᴛ#C54E00&lᴇ#B94700&lᴅ #A23900&lᴀ#963200&lʀ#8B2B00&lᴄ#7F2400&lʜ#741D00&lɪ#681500&lᴛ#5C0E00&lᴇ#510700&lᴄ#450000&lᴛ#450000&l&ka#4F4F4F&l&ks&8]'
+    order: 79
+    permission: 'deluxetags.tag.HBuildComp'
+    lore:
+      - '&f'
+  'banana':
+    display_name: 'banana'
+    categories: ['all']
+    tag: ' &8[#FFE259&lʙ#FFD657&lᴀ#FFCA56&lɴ#FFBF54&lᴀ#FFB353&lɴ#FFA751&lᴀ&8]'
+    order: 80
+    permission: 'deluxetags.tag.banana'
+    lore:
+      - '&f'
+  'abyssal':
+    display_name: 'abyssal'
+    categories: ['all']
+    tag: ' &8[#0B39A1&lᴀ#335291&lʙ#5B6A80&lʏ#838370&ls#AA9B60&ls#D2B44F&lᴀ#FACC3F&lʟ&8]'
+    order: 81
+    permission: 'deluxetags.tag.abyssal'
+    lore:
+      - '&f'
+  'crabby':
+    display_name: 'crabby'
+    categories: ['all']
+    tag: ' &8[#F86A42&lᴄ#D0614D&lʀ#A75859&lᴀ#7F4E64&lʙ#564570&lʙ#2E3C7B&lʏ&8]'
+    order: 82
+    permission: 'deluxetags.tag.crabby'
+    lore:
+      - '&f'
+  'saltycrate':
+    display_name: 'saltycrate'
+    categories: ['all']
+    tag: ' &8[#5491C3&ls#6D96B8&lᴀ#869BAD&lʟ#9E9FA1&lᴛ#B7A496&lʏ&8]'
+    order: 83
+    permission: 'deluxetags.tag.saltycrate'
+    lore:
+      - '&f'
+  'shiprekt':
+    display_name: 'shiprekt'
+    categories: ['all']
+    tag: ' &8[#098FA1&ls#2C94A5&lʜ#4E9AA8&lɪ#719FAC&lᴘ#94A4B0&lʀ#B7A9B4&lᴇ#D9AFB7&lᴋ#FCB4BB&lᴛ&8]'
+    order: 84
+    permission: 'deluxetags.tag.shiprekt'
+    lore:
+      - '&f'
+  '20000leagues':
+    display_name: '20000leagues'
+    categories: ['all']
+    tag: ' &8[#5C907E&l2#548A79&l0#4D8473&l0#457D6E&l0#3D7768&l0 #2E6B5E&lʟ#266458&lᴇ#1F5E53&lᴀ#17584D&lɢ#0F5248&lᴜ#084B42&lᴇ#00453D&ls&8]'
+    order: 85
+    permission: 'deluxetags.tag.20000leagues'
+    lore:
+      - '&f'
+  'DestinedChamp':
+    display_name: 'DestinedChamp'
+    categories: ['all']
+    tag: '&8[#F39A11ᴅ#F49111ᴇ#F58712s#F57E12ᴛ#F67413ɪ#F76B13ɴ#F86113ᴇ#F85814ᴅ #FA4514ᴄ#FB3C15ʜ#FB3215ᴀ#FC2916ᴍ#FD1F16ᴘ#FE1616ɪ#FE0C17ᴏ#FF0317ɴ&8]'
+    order: 86
+    permission: 'deluxetags.tag.DestinedChamp'
+    lore:
+      - '&f'
+  'thankful':
+    display_name: 'thankful'
+    categories: ['all']
+    tag: ' &8[#FCD05C&lᴛ#FCCB5A&lʜ#FDC658&lᴀ#FDC156&lɴ#FEBC55&lᴋ#FEB753&lꜰ#FFB251&lᴜ#FFAD4F&lʟ&8]'
+    order: 87
+    permission: 'deluxetags.tag.thankful'
+    lore:
+      - '&f'
+  'stuffed':
+    display_name: 'stuffed'
+    categories: ['all']
+    tag: ' &8[#FCD05C&ls#FDCA5A&lᴛ#FDC458&lᴜ#FEBF56&lꜰ#FEB953&lꜰ#FFB351&lᴇ#FFAD4F&lᴅ&8]'
+    order: 88
+    permission: 'deluxetags.tag.stuffed'
+    lore:
+      - '&f'
+  'corny':
+    display_name: 'corny'
+    categories: ['all']
+    tag: ' &8[#FCD05C&lᴄ#FDC759&lᴏ#FEBF56&lʀ#FEB652&lɴ#FFAD4F&lʏ&8]'
+    order: 89
+    permission: 'deluxetags.tag.corny'
+    lore:
+      - '&f'
+  'gobbler':
+    display_name: 'gobbler'
+    categories: ['all']
+    tag: ' &8[#402903&lɢ#4F3003&lᴏ#5E3702&lʙ#6D3E02&lʙ#7C4401&lʟ#8B4B01&lᴇ#9A5200&lʀ&8]'
+    order: 90
+    permission: 'deluxetags.tag.gobbler'
+    lore:
+      - '&f'
+  'feastmode':
+    display_name: 'feastmode'
+    categories: ['all']
+    tag: ' &8[#E74C3C&lꜰ#EA5B35&lᴇ#EC6B2F&lᴀ#EF7A28&ls#F28A21&lᴛ #F7A914&lᴍ#FAB80D&lᴏ#FCC807&lᴅ#FFD700&lᴇ&8]'
+    order: 91
+    permission: 'deluxetags.tag.feastmode'
+    lore:
+      - '&f'
+  'gravylord':
+    display_name: 'gravylord'
+    categories: ['all']
+    tag: ' &8[#5A453A&lɢ#644F41&lʀ#6F5948&lᴀ#79624E&lᴠ#846C55&lʏ #998063&lʟ#A38969&lᴏ#AE9370&lʀ#B89D77&lᴅ&8]'
+    order: 92
+    permission: 'deluxetags.tag.gravylord'
+    lore:
+      - '&f'
+  'saucy':
+    display_name: 'saucy'
+    categories: ['all']
+    tag: ' &8[#A52A2A&ls#BC3920&lᴀ#D24815&lᴜ#E9570B&lᴄ#FF6600&lʏ&8]'
+    order: 93
+    permission: 'deluxetags.tag.saucy'
+    lore:
+      - '&f'
+  'stillhungry':
+    display_name: 'stillhungry'
+    categories: ['all']
+    tag: ' &8[#34495E&ls#464F58&lᴛ#595551&lɪ#6B5B4B&lʟ#7E6145&lʟ #A36E38&lʜ#B57432&lᴜ#C87A2C&lɴ#DA8026&lɢ#ED861F&lʀ#FF8C19&lʏ&8]'
+    order: 94
+    permission: 'deluxetags.tag.stillhungry'
+    lore:
+      - '&f'
+  'cardmaxed':
+    display_name: 'cardmaxed'
+    categories: ['all']
+    tag: ' &8[#C0392B&lᴄ#C4412A&lᴀ#C84829&lʀ#CD5028&lᴅ #D55F26&lᴍ#D96725&lᴀ#DE6F24&lx#E27623&lᴇ#E67E22&lᴅ&8]'
+    order: 95
+    permission: 'deluxetags.tag.cardmaxed'
+    lore:
+      - '&f'
+  'lootgoblin':
+    display_name: 'lootgoblin'
+    categories: ['all']
+    tag: ' &8[#111213&lʟ#0F2A18&lᴏ#0E411D&lᴏ#0C5922&lᴛ #09892C&lɢ#07A031&lᴏ#05B836&lʙ#03D03B&lʟ#02E740&lɪ#00FF45&lɴ&8]'
+    order: 96
+    permission: 'deluxetags.tag.lootgoblin'
+    lore:
+      - '&f'
+  'the_sleigher':
+    display_name: 'the sleigher'
+    categories: ['all']
+    tag: ' &8[#701C0Cᴛ#6A1B0Dʜ#641A0Dᴇ #58180Fs#521710ʟ#4B1610ᴇ#451511ɪ#3F1412ɢ#391313ʜ#331213ᴇ#2D1114ʀ&8]'
+    order: 98
+    permission: 'deluxetags.tag.the_sleigher'
+    lore:
+      - '&f'
+  'nose':
+    display_name: 'nose'
+    categories: ['all']
+    tag: ' &8[#F58181ɴ#F85656ᴏ#FC2B2Bs#FF0000ᴇ&8]'
+    order: 99
+    permission: 'deluxetags.tag.nose'
+    lore:
+      - '&f'
+  'sugarplum':
+    display_name: 'sugarplum'
+    categories: ['all']
+    tag: ' &8[#6F84E7s#697FE6ᴜ#627BE5ɢ#5C76E4ᴀ#5672E4ʀ#4F6DE3ᴘ#4968E2ʟ#4264E1ᴜ#3C5FE0ᴍ&8]'
+    order: 100
+    permission: 'deluxetags.tag.sugarplum'
+    lore:
+      - '&f'
+  'ho_ho_ho':
+    display_name: 'ho ho ho'
+    categories: ['all']
+    tag: ' &8[#FD0000ʜ#F22023ᴏ #DB616Aʜ#CF818Dᴏ #B8C2D4ʜ#ADE2F7ᴏ&8]'
+    order: 101
+    permission: 'deluxetags.tag.ho_ho_ho'
+    lore:
+      - '&f'
+  'naughty':
+    display_name: 'naughty'
+    categories: ['all']
+    tag: ' &8[#27BA1Fɴ#3BAA2Cᴀ#509A39ᴜ#648A47ɢ#787A54ʜ#8D6A61ᴛ#A15A6Eʏ&8]'
+    order: 102
+    permission: 'deluxetags.tag.naughty'
+    lore:
+      - '&f'
+  'nice':
+    display_name: 'nice'
+    categories: ['all']
+    tag: ' &8[#D95247ɴ#E67068ɪ#F28F8Aᴄ#FFADABᴇ&8]'
+    order: 103
+    permission: 'deluxetags.tag.nice'
+    lore:
+      - '&f'
+  'diamond_hands':
+    display_name: 'diamond hands'
+    categories: ['all']
+    tag: ' &8[#3499F8&lᴅ#30A2F8&lɪ#2BAAF8&lᴀ#27B3F9&lᴍ#23BBF9&lᴏ#1EC4F9&lɴ#1ACCF9&lᴅ #11DDF9&lʜ#0DE6FA&lᴀ#09EEFA&lɴ#04F7FA&lᴅ#00FFFA&ls&8]'
+    order: 104
+    permission: 'deluxetags.tag.diamondhands'
+    lore:
+      - '&f'
+  'thesupreme':
+    display_name: 'thesupreme'
+    categories: ['all']
+    tag: ' &8[#ee0606&lᴛʜᴇ sᴜᴘʀᴇᴍᴇ&8]'
+    order: 105
+    permission: 'deluxetags.tag.thesupreme'
+    lore:
+      - '&f'
+  'the_monarch':
+    display_name: 'the monarch'
+    categories: ['all']
+    tag: ' &8[#F4E285&l&nᴛ#F1DD7D&l&nʜ#EED875&l&nᴇ #E7CE66&l&nᴍ#E4C95E&l&nᴏ#E1C356&l&nɴ#DEBE4E&l&nᴀ#DAB947&l&nʀ#D7B43F&l&nᴄ#D4AF37&l&nʜ&8]'
+    order: 106
+    permission: 'deluxetags.tag.the_monarch'
+    lore:
+      - '&f'
+  'apex':
+    display_name: 'apex'
+    categories: ['all']
+    tag: ' &8[#FFFF00&l&n« #B6FF00&l&nᴀ#92FF00&l&nᴘ#6DFF00&l&nᴇ#49FF00&l&nx #00FF00&l&n»&8]'
+    order: 107
+    permission: 'deluxetags.tag.apex'
+    lore:
+      - '&f'
+  'yule_keeper':
+    display_name: 'yule keeper'
+    categories: ['all']
+    tag: '&8[#FF4500ʏ#FF5400ᴜ#FF6200ʟ#FF7100ᴇ#FF7F00 #FF8E00ᴋ#FF9D00ᴇ#FFAB00ᴇ#FFBA00ᴘ#FFC800ᴇ#FFD700ʀ&8]'
+    order: 108
+    permission: 'deluxetags.tag.yule_keeper'
+    lore:
+      - '&fYule Keeper Tag'
+  'frostbite':
+    display_name: 'frostbite'
+    categories: ['all']
+    tag: '&8[#ADD8E6ꜰ#B7DDE9ʀ#C2E2ECᴏ#CCE7EFs#D6ECF3ᴛ#E0F0F6ʙ#EBF5F9ɪ#F5FAFCᴛ#FFFFFFᴇ&8]'
+    order: 109
+    permission: 'deluxetags.tag.frostbite'
+    lore:
+      - '&fFrostBite Tag'
+  'noel_star':
+    display_name: 'noel star'
+    categories: ['all']
+    tag: '&8[#FFD700ɴ#FFDC20ᴏ#FFE140ᴇ#FFE660ʟ#FFEB80 #FFF09Fs#FFF5BFᴛ#FFFADFᴀ#FFFFFFʀ&8]'
+    order: 110
+    permission: 'deluxetags.tag.noel_star'
+    lore:
+      - '&fNoel Star Tag'
+  'jolly_helper':
+    display_name: 'jolly helper'
+    categories: ['all']
+    tag: '&8[#D32F2Fᴊ#C73B32ᴏ#BA4635ʟ#AE5238ʟ#A25E3Bʏ#96693E #897541ʜ#7D8044ᴇ#718C47ʟ#65984Aᴘ#58A34Dᴇ#4CAF50ʀ&8]'
+    order: 111
+    permission: 'deluxetags.tag.jolly_helper'
+    lore:
+      - '&fJolly Helper Tag'
+  'kringle_s_aid':
+    display_name: 'kringle s aid'
+    categories: ['all']
+    tag: '&8[#FF0000ᴋ#FF1515ʀ#FF2B2Bɪ#FF4040ɴ#FF5555ɢ#FF6A6Aʟ#FF8080ᴇ#FF9595''#FFAAAAs#FFBFBF #FFD5D5ᴀ#FFEAEAɪ#FFFFFFᴅ&8]'
+    order: 112
+    permission: 'deluxetags.tag.kringle_s_aid'
+    lore:
+      - '&fKringle''s Aid Tag'
+  'mistletoe':
+    display_name: 'mistletoe'
+    categories: ['all']
+    tag: '&8[#008000ᴍ#188818ɪ#309030s#489848ᴛ#60A060ʟ#78A878ᴇ#90B090ᴛ#A8B8A8ᴏ#C0C0C0ᴇ&8]'
+    order: 113
+    permission: 'deluxetags.tag.mistletoe'
+    lore:
+      - '&fMistletoe Tag'
+  'holly_jester':
+    display_name: 'holly jester'
+    categories: ['all']
+    tag: '&8[#006400ʜ#145D05ᴏ#28550Bʟ#3C4E10ʟ#504716ʏ#64401B #783821ᴊ#8C3126ᴇ#A02A2Cs#B42331ᴛ#C81B37ᴇ#DC143Cʀ&8]'
+    order: 114
+    permission: 'deluxetags.tag.holly_jester'
+    lore:
+      - '&fHolly Jester Tag'
+  'gift_giver':
+    display_name: 'gift giver'
+    categories: ['all']
+    tag: '&8[#FFD700ɢ#F8D415ɪ#F1D22Bꜰ#EACF40ᴛ#E3CD55 #DCCA6Bɢ#D5C880ɪ#CEC595ᴠ#C7C3ABᴇ#C0C0C0ʀ&8]'
+    order: 115
+    permission: 'deluxetags.tag.gift_giver'
+    lore:
+      - '&fGift Giver Tag'
+  'spore_lord':
+    display_name: 'spore lord'
+    categories: ['all']
+    tag: '&8[#38761Dꜱ#45802Aᴘ#518A36ᴏ#5E9443ʀ#6A9E4Fᴇ#77A95C #83B368ʟ#90BD75ᴏ#9CC781ʀ#A9D18Eᴅ&8]'
+    order: 116
+    permission: 'deluxetags.tag.spore_lord'
+    lore:
+      - '&fSpore Lord Tag'
+  'shroomer':
+    display_name: 'shroomer'
+    categories: ['all']
+    tag: '&8[#9ACD32ꜱ#A8D44Bʜ#B7DB64ʀ#C5E27Dᴏ#D4EA95ᴏ#E2F1AEᴍ#F1F8C7ᴇ#FFFFE0ʀ&8]'
+    order: 117
+    permission: 'deluxetags.tag.shroomer'
+    lore:
+      - '&fShroomer Tag'

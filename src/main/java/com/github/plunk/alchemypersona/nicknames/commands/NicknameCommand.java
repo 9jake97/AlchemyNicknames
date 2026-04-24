@@ -1,7 +1,8 @@
-package com.github.plunk.alchemynicknames.commands;
+package com.github.plunk.alchemypersona.nicknames.commands;
 
-import com.github.plunk.alchemynicknames.AlchemyNicknames;
-import com.github.plunk.alchemynicknames.managers.NicknameManager;
+import com.github.plunk.alchemypersona.AlchemyPersona;
+import com.github.plunk.alchemypersona.nicknames.managers.NicknameManager;
+import org.bukkit.configuration.file.FileConfiguration;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
@@ -18,10 +19,10 @@ import java.util.regex.Pattern;
 
 public class NicknameCommand implements CommandExecutor, TabCompleter {
 
-    private final AlchemyNicknames plugin;
+    private final AlchemyPersona plugin;
     private final NicknameManager nicknameManager;
 
-    public NicknameCommand(AlchemyNicknames plugin, NicknameManager nicknameManager) {
+    public NicknameCommand(AlchemyPersona plugin, NicknameManager nicknameManager) {
         this.plugin = plugin;
         this.nicknameManager = nicknameManager;
     }
@@ -41,7 +42,7 @@ public class NicknameCommand implements CommandExecutor, TabCompleter {
         Player target;
         String nick;
 
-        if (args.length >= 2 && sender.hasPermission("alchemynicknames.others")) {
+        if (args.length >= 2 && sender.hasPermission("alchemypersona.admin")) {
             target = plugin.getServer().getPlayer(args[0]);
             if (target == null) {
                 sender.sendMessage(parseMessage("messages.prefix").append(parseMessage("messages.player-not-found")));
@@ -51,7 +52,7 @@ public class NicknameCommand implements CommandExecutor, TabCompleter {
         } else if (sender instanceof Player) {
             target = (Player) sender;
             nick = args[0];
-            if (!target.hasPermission("alchemynicknames.nickname")) {
+            if (!target.hasPermission("alchemypersona.nickname")) {
                 sender.sendMessage(parseMessage("messages.prefix").append(parseMessage("messages.no-permission")));
                 return true;
             }
@@ -81,7 +82,7 @@ public class NicknameCommand implements CommandExecutor, TabCompleter {
 
     private boolean handleUnnick(CommandSender sender, String[] args) {
         Player target;
-        if (args.length >= 1 && sender.hasPermission("alchemynicknames.others")) {
+        if (args.length >= 1 && sender.hasPermission("alchemypersona.admin")) {
             target = plugin.getServer().getPlayer(args[0]);
             if (target == null) {
                 sender.sendMessage(parseMessage("messages.prefix").append(parseMessage("messages.player-not-found")));
@@ -111,8 +112,9 @@ public class NicknameCommand implements CommandExecutor, TabCompleter {
         // Strip legacy colors
         plain = plain.replaceAll("&[0-9a-fk-orx]", "");
         
-        int min = plugin.getConfig().getInt("nickname.min-length", 3);
-        int max = plugin.getConfig().getInt("nickname.max-length", 16);
+        FileConfiguration nickConfig = plugin.getNicknamesConfig();
+        int min = nickConfig.getInt("settings.min-length", 3);
+        int max = nickConfig.getInt("settings.max-length", 16);
 
         if (plain.length() < min) {
             sender.sendMessage(parseMessage("messages.prefix").append(parseMessage("messages.too-short").replaceText(b -> b.matchLiteral("%min%").replacement(String.valueOf(min)))));
@@ -123,7 +125,7 @@ public class NicknameCommand implements CommandExecutor, TabCompleter {
             return false;
         }
 
-        List<String> blacklist = plugin.getConfig().getStringList("nickname.blacklist");
+        List<String> blacklist = nickConfig.getStringList("settings.blacklist");
         for (String word : blacklist) {
             if (Pattern.compile(word, Pattern.CASE_INSENSITIVE).matcher(plain).find()) {
                 sender.sendMessage(parseMessage("messages.prefix").append(parseMessage("messages.blacklisted")));
@@ -135,7 +137,10 @@ public class NicknameCommand implements CommandExecutor, TabCompleter {
     }
 
     private Component parseMessage(String path) {
-        String msg = plugin.getConfig().getString(path, "");
+        String msg = plugin.getNicknamesConfig().getString(path);
+        if (msg == null) {
+            msg = plugin.getConfig().getString(path, "");
+        }
         return MiniMessage.miniMessage().deserialize(msg);
     }
 
@@ -143,7 +148,7 @@ public class NicknameCommand implements CommandExecutor, TabCompleter {
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
-            if (sender.hasPermission("alchemynicknames.others")) {
+            if (sender.hasPermission("alchemypersona.admin")) {
                 for (Player p : plugin.getServer().getOnlinePlayers()) {
                     completions.add(p.getName());
                 }

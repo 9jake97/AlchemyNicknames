@@ -1,6 +1,6 @@
-package com.github.plunk.alchemynicknames.managers;
+package com.github.plunk.alchemypersona.nicknames.managers;
 
-import com.github.plunk.alchemynicknames.AlchemyNicknames;
+import com.github.plunk.alchemypersona.AlchemyPersona;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -18,21 +18,27 @@ import java.util.regex.Pattern;
 
 public class NicknameManager {
 
-    private final AlchemyNicknames plugin;
+    private final AlchemyPersona plugin;
     private final Map<UUID, String> nicknames = new java.util.concurrent.ConcurrentHashMap<>();
     private final File nicknamesFile;
     private FileConfiguration nicknamesConfig;
+    private FileConfiguration settings;
 
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
 
-    public NicknameManager(AlchemyNicknames plugin) {
+    public NicknameManager(AlchemyPersona plugin) {
         this.plugin = plugin;
-        this.nicknamesFile = new File(plugin.getDataFolder(), "nicknames.yml");
+        this.nicknamesFile = new File(plugin.getDataFolder(), "nicknames_data.yml");
+        loadSettings();
+    }
+
+    public void loadSettings() {
+        this.settings = plugin.getNicknamesConfig();
     }
 
     public void loadNicknames() {
         if (!nicknamesFile.exists()) {
-            plugin.saveResource("nicknames.yml", false);
+            try { nicknamesFile.createNewFile(); } catch (IOException ignored) {}
         }
         nicknamesConfig = YamlConfiguration.loadConfiguration(nicknamesFile);
         nicknames.clear();
@@ -55,7 +61,7 @@ public class NicknameManager {
         try {
             nicknamesConfig.save(nicknamesFile);
         } catch (IOException e) {
-            plugin.getLogger().severe("Could not save nicknames.yml!");
+            plugin.getLogger().severe("Could not save nicknames_data.yml!");
         }
     }
 
