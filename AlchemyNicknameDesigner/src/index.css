@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@font-face {
+  font-family: 'Minecraft';
+  src: url('https://cdn.jsdelivr.net/gh/z-m-huang/minecraft-font@master/fonts/Minecraft.ttf') format('truetype');
+}
 
 :root {
   --bg-main: #13171e;
