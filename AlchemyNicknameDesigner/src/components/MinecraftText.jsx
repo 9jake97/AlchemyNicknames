@@ -126,6 +126,18 @@ export default function MinecraftText({ text, className = "" }) {
           }
       }
 
+      // Raw Hex check: #ABCDEF
+      if (input[i] === '#' && i + 6 < input.length) {
+          const rawHex = input.substring(i, i + 7);
+          if (/^#[0-9a-fA-F]{6}$/.test(rawHex)) {
+              pushPart(currentBuffer);
+              currentBuffer = "";
+              currentColor = rawHex;
+              i += 7;
+              continue;
+          }
+      }
+
       currentBuffer += input[i];
       i++;
     }
