@@ -202,13 +202,6 @@ public class AlchemyPersona extends JavaPlugin {
             config.bundledPlugins.enableCors(cors -> cors.addRule(it -> it.anyHost()));
         });
 
-        // Global Error Handling to catch 500s
-        server.exception(Exception.class, (e, ctx) -> {
-            getLogger().severe("WEB API ERROR: " + e.getMessage());
-            e.printStackTrace();
-            ctx.status(500).result("Internal Server Error: " + e.getMessage());
-        });
-
         server.get("/health", ctx -> ctx.result("AlchemyPersona API is UP"));
 
         server.get("/data", ctx -> {
@@ -218,13 +211,14 @@ public class AlchemyPersona extends JavaPlugin {
             if (session == null || System.currentTimeMillis() > session.expiresAt()) {
                 ctx.status(401).result("Invalid or expired token"); return;
             }
+            
             java.util.UUID uuid;
             try {
                 uuid = java.util.UUID.fromString(session.uuid());
             } catch (Exception e) {
-                ctx.status(400).result("Invalid UUID in session");
-                return;
+                ctx.status(400).result("Invalid UUID in session"); return;
             }
+            
             org.bukkit.OfflinePlayer offlinePlayer = org.bukkit.Bukkit.getOfflinePlayer(uuid);
             
             // Get LuckPerms user for permission checks (even if offline)
@@ -239,8 +233,8 @@ public class AlchemyPersona extends JavaPlugin {
             }
 
             var data = new java.util.HashMap<String, Object>();
-            data.put("playerName", offlinePlayer.getName() != null ? offlinePlayer.getName() : "Unknown");
-            data.put("nickname", nicknameManager != null ? nicknameManager.getNickname(uuid) : null);
+            data.put("playerName", offlinePlayer.getName());
+            data.put("nickname", nicknameManager.getNickname(uuid));
             
             final net.luckperms.api.model.user.User finalLpUser = lpUser;
             java.util.function.Predicate<String> hasPerm = (perm) -> {
@@ -252,88 +246,100 @@ public class AlchemyPersona extends JavaPlugin {
 
             // Pins
             var pins = new java.util.ArrayList<java.util.Map<String, Object>>();
-            if (pinManager != null && getPinsConfig() != null) {
-                // For current pin, we might need online player or LP metadata
-                String currentPin = null;
-                if (offlinePlayer.isOnline()) {
-                    currentPin = pinManager.getCurrentPin(offlinePlayer.getPlayer());
-                } else if (finalLpUser != null) {
-                    currentPin = finalLpUser.getCachedData().getMetaData().getSuffix();
-                }
+            try {
+                if (pinManager != null && getPinsConfig() != null) {
+                    // For current pin, we might need online player or LP metadata
+                    String currentPin = null;
+                    if (offlinePlayer.isOnline()) {
+                        currentPin = pinManager.getCurrentPin(offlinePlayer.getPlayer());
+                    } else if (finalLpUser != null) {
+                        currentPin = finalLpUser.getCachedData().getMetaData().getSuffix();
+                    }
 
-                var section = getPinsConfig().getConfigurationSection("pins");
-                if (section != null) {
-                    for (String pinId : section.getKeys(false)) {
-                        var pinData = new java.util.HashMap<String, Object>();
-                        pinData.put("id", pinId);
-                        pinData.put("displayName", getPinsConfig().getString("pins." + pinId + ".display_name"));
-                        String unicode = getPinsConfig().getString("pins." + pinId + ".pin_unicode");
-                        pinData.put("unicode", unicode);
-                        
-                        // 1. Explicit Nexo Texture Config
-                        String explicitTexture = getPinsConfig().getString("pins." + pinId + ".nexo_texture");
-                        if (explicitTexture != null && explicitTexture.contains(":")) {
-                            String[] parts = explicitTexture.split(":");
-                            pinData.put("imageUrl", "/api/nickname/assets/" + parts[0] + "/textures/" + parts[1] + ".png");
-                        }
-                        
-                        // 2. Nexo Mapping Lookup (by Unicode)
-                        if (!pinData.containsKey("imageUrl") && unicode != null) {
-                            String stripped = org.bukkit.ChatColor.stripColor(org.bukkit.ChatColor.translateAlternateColorCodes('&', unicode)).trim();
-                            if (nexoMapping.containsKey(stripped)) {
-                                pinData.put("imageUrl", nexoMapping.get(stripped));
+                    var section = getPinsConfig().getConfigurationSection("pins");
+                    if (section != null) {
+                        for (String pinId : section.getKeys(false)) {
+                            var pinData = new java.util.HashMap<String, Object>();
+                            pinData.put("id", pinId);
+                            pinData.put("displayName", getPinsConfig().getString("pins." + pinId + ".display_name"));
+                            String unicode = getPinsConfig().getString("pins." + pinId + ".pin_unicode");
+                            pinData.put("unicode", unicode);
+                            
+                            // 1. Explicit Nexo Texture Config
+                            String explicitTexture = getPinsConfig().getString("pins." + pinId + ".nexo_texture");
+                            if (explicitTexture != null && explicitTexture.contains(":")) {
+                                String[] parts = explicitTexture.split(":");
+                                pinData.put("imageUrl", "/api/nickname/assets/" + parts[0] + "/textures/" + parts[1] + ".png");
                             }
-                        }
-                        
-                        // 3. Fallback: Lookup by ID (case-insensitive)
-                        if (!pinData.containsKey("imageUrl")) {
-                            String lowerId = pinId.toLowerCase();
-                            if (nexoMapping.containsKey(lowerId)) {
-                                pinData.put("imageUrl", nexoMapping.get(lowerId));
+                            
+                            // 2. Nexo Mapping Lookup (by Unicode)
+                            if (!pinData.containsKey("imageUrl") && unicode != null) {
+                                String stripped = org.bukkit.ChatColor.stripColor(org.bukkit.ChatColor.translateAlternateColorCodes('&', unicode)).trim();
+                                if (nexoMapping.containsKey(stripped)) {
+                                    pinData.put("imageUrl", nexoMapping.get(stripped));
+                                }
                             }
+                            
+                            // 3. Fallback: Lookup by ID (case-insensitive)
+                            if (!pinData.containsKey("imageUrl")) {
+                                String lowerId = pinId.toLowerCase();
+                                if (nexoMapping.containsKey(lowerId)) {
+                                    pinData.put("imageUrl", nexoMapping.get(lowerId));
+                                }
+                            }
+                            
+                            pinData.put("owned", hasPerm.test("LPP.pin." + pinId));
+                            pinData.put("selected", pinId.equals(currentPin) || (currentPin != null && currentPin.equals(unicode)));
+                            pins.add(pinData);
                         }
-                        
-                        pinData.put("owned", hasPerm.test("LPP.pin." + pinId));
-                        pinData.put("selected", pinId.equals(currentPin) || (currentPin != null && currentPin.equals(unicode)));
-                        pins.add(pinData);
                     }
                 }
+            } catch (Exception e) {
+                getLogger().warning("Error loading Pins for API: " + e.getMessage());
             }
             data.put("pins", pins);
 
             // Tags
             var tags = new java.util.ArrayList<java.util.Map<String, Object>>();
-            if (tagManager != null && getTagsConfig() != null) {
-                String currentTagId = tagManager.getPlayerTagId(uuid);
-                var tagSection = getTagsConfig().getConfigurationSection("tags");
-                if (tagSection != null) {
-                    for (String tagId : tagSection.getKeys(false)) {
-                        var tagData = new java.util.HashMap<String, Object>();
-                        tagData.put("id", tagId);
-                        tagData.put("displayName", getTagsConfig().getString("tags." + tagId + ".display_name"));
-                        tagData.put("tag", getTagsConfig().getString("tags." + tagId + ".tag"));
-                        String perm = getTagsConfig().getString("tags." + tagId + ".permission", "deluxetags.tag." + tagId);
-                        tagData.put("owned", hasPerm.test(perm));
-                        tagData.put("selected", tagId.equals(currentTagId));
-                        tags.add(tagData);
+            try {
+                if (tagManager != null && getTagsConfig() != null) {
+                    String currentTagId = tagManager.getPlayerTagId(uuid);
+                    var tagSection = getTagsConfig().getConfigurationSection("tags");
+                    if (tagSection != null) {
+                        for (String tagId : tagSection.getKeys(false)) {
+                            var tagData = new java.util.HashMap<String, Object>();
+                            tagData.put("id", tagId);
+                            tagData.put("displayName", getTagsConfig().getString("tags." + tagId + ".display_name"));
+                            tagData.put("tag", getTagsConfig().getString("tags." + tagId + ".tag"));
+                            String perm = getTagsConfig().getString("tags." + tagId + ".permission", "deluxetags.tag." + tagId);
+                            tagData.put("owned", hasPerm.test(perm));
+                            tagData.put("selected", tagId.equals(currentTagId));
+                            tags.add(tagData);
+                        }
                     }
                 }
+            } catch (Exception e) {
+                getLogger().warning("Error loading Tags for API: " + e.getMessage());
             }
             data.put("tags", tags);
 
             // Join Messages
             var jms = new java.util.ArrayList<java.util.Map<String, Object>>();
-            if (messageManager != null) {
-                String currentJm = com.github.plunk.alchemypersona.joinmessages.Data.get().getString("players." + uuid);
-                String pName = offlinePlayer.getName() != null ? offlinePlayer.getName() : "Player";
-                for (var jm : messageManager.getLoadedMessages()) {
-                    var jmData = new java.util.HashMap<String, Object>();
-                    jmData.put("id", jm.getIdentifier());
-                    jmData.put("text", jm.getFormattedMessage(pName));
-                    jmData.put("owned", hasPerm.test(jm.getPermission()));
-                    jmData.put("selected", jm.getIdentifier().equals(currentJm));
-                    jms.add(jmData);
+            try {
+                if (messageManager != null) {
+                    String currentJm = com.github.plunk.alchemypersona.joinmessages.Data.get().getString("players." + uuid);
+                    String pName = offlinePlayer.getName() != null ? offlinePlayer.getName() : "Player";
+                    for (var jm : messageManager.getLoadedMessages()) {
+                        var jmData = new java.util.HashMap<String, Object>();
+                        jmData.put("id", jm.getIdentifier());
+                        jmData.put("text", jm.getFormattedMessage(pName));
+                        jmData.put("owned", hasPerm.test(jm.getPermission()));
+                        jmData.put("selected", jm.getIdentifier().equals(currentJm));
+                        jms.add(jmData);
+                    }
                 }
+            } catch (Exception e) {
+                getLogger().warning("Error loading Join Messages for API: " + e.getMessage());
             }
             data.put("joinMessages", jms);
 
