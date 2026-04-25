@@ -9,14 +9,17 @@ messages:
 # Web API Settings (for the Persona Designer)
 web:
   port: 8085
-  # The public base URL of your server (used as the API endpoint embedded in links)
+  # The public domain of your server (e.g. https://stats.bloc.kz)
   base-url: "https://stats.bloc.kz"
+  # The path prefix used by your proxy (e.g. AlchemyWebHub)
+  proxy-prefix: "/api/nickname"
   # The URL of the Persona Designer frontend
   editor-url: "https://nickname.bloc.kz"
 
 # Discord OAuth2 Integration (for /linkpersona)
 # Create an application at https://discord.com/developers/applications
 # Add redirect URI: <base-url>/auth/discord/callback
+# (Example: https://stats.bloc.kz/api/nickname/auth/discord/callback)
 discord:
   client-id: ""
   client-secret: ""

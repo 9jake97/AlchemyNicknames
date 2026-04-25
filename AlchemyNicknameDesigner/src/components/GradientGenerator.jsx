@@ -269,14 +269,18 @@ const [uiGradients, setUiGradients] = useState([]);
     };
 
     const handleSave = async () => {
-        if (!playerInfo?.token) {
-            setSaveStatus({type:'error', message:'No session. Run /nicknameeditor in-game.'}); return;
+        if (!playerInfo?.token && !playerInfo?.dsession) {
+            setSaveStatus({type:'error', message:'No session. Run /nicknameeditor or login with Discord.'}); return;
         }
         setSaving(true); setSaveStatus(null);
         try {
+            const body = playerInfo.dsession
+                ? { dsession: playerInfo.dsession, uuid: playerInfo.uuid, nickname: generatedOutput, plainText: text }
+                : { token: playerInfo.token, nickname: generatedOutput, plainText: text };
+
             const res = await fetch(`${playerInfo.apiBase || ''}/api/nickname/save`, {
                 method:'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({token:playerInfo.token, nickname:generatedOutput, plainText:text}),
+                body: JSON.stringify(body),
             });
             if (res.ok) setSaveStatus({type:'success', message:'Nickname saved!'});
             else { const err=await res.text(); setSaveStatus({type:'error', message:`Failed (${res.status}): ${err}`}); }

@@ -12,6 +12,15 @@ function getStoredApiBase() {
 function setStoredApiBase(v) {
   try { if (v) localStorage.setItem('alchemyApiBase', v); } catch {}
 }
+function getStoredDiscordSession() {
+  try { return localStorage.getItem('alchemyDiscordSession') || ''; } catch { return ''; }
+}
+function setStoredDiscordSession(v) {
+  try {
+    if (v) localStorage.setItem('alchemyDiscordSession', v);
+    else localStorage.removeItem('alchemyDiscordSession');
+  } catch {}
+}
 function resolveApi(param) {
   return param || BUILT_IN_API || getStoredApiBase();
 }
@@ -350,7 +359,7 @@ function App() {
     const player   = params.get('player')   || '';
     const token    = params.get('token')    || '';
     const apiParam = params.get('api')      || '';
-    const dsession = params.get('dsession') || '';
+    const dsession = params.get('dsession') || getStoredDiscordSession();
     const errorFlag = params.get('error')  || '';
 
     const resolved = resolveApi(apiParam);
@@ -371,6 +380,7 @@ function App() {
     }
 
     if (dsession) {
+      if (params.get('dsession')) setStoredDiscordSession(dsession);
       handleDiscordSession(dsession, resolved);
       return;
     }
@@ -390,7 +400,11 @@ function App() {
     setIsLoading(true);
     try {
       const res = await fetch(`${base}/api/nickname/accounts?dsession=${dsession}`);
-      if (!res.ok) { setToast({ message: 'Discord session invalid or expired.', type: 'error' }); return; }
+      if (!res.ok) { 
+        setStoredDiscordSession(null);
+        setToast({ message: 'Discord session invalid or expired.', type: 'error' }); 
+        return; 
+      }
       const accounts = await res.json(); // plain array
 
       if (accounts.length === 0) {

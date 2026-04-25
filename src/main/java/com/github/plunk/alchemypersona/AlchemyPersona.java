@@ -145,6 +145,8 @@ public class AlchemyPersona extends JavaPlugin {
 
         loadNexoGlyphs();
 
+        loadSessions();
+
         getLogger().info("AlchemyPersona v" + getDescription().getVersion() + " has been enabled!");
     }
 
@@ -297,8 +299,12 @@ public class AlchemyPersona extends JavaPlugin {
             String state = randomToken(20);
             oauthStates.put(state, System.currentTimeMillis() + 10 * 60 * 1000L);
 
+            String proxyPrefix = getConfig().getString("web.proxy-prefix", "/api/nickname");
+            if (proxyPrefix.endsWith("/")) proxyPrefix = proxyPrefix.substring(0, proxyPrefix.length() - 1);
+            if (!proxyPrefix.isEmpty() && !proxyPrefix.startsWith("/")) proxyPrefix = "/" + proxyPrefix;
+
             String redirectUri = java.net.URLEncoder.encode(
-                apiBase + "/api/nickname/auth/discord/callback", java.nio.charset.StandardCharsets.UTF_8);
+                apiBase + proxyPrefix + "/auth/discord/callback", java.nio.charset.StandardCharsets.UTF_8);
             ctx.redirect("https://discord.com/api/oauth2/authorize"
                 + "?client_id=" + clientId
                 + "&redirect_uri=" + redirectUri
@@ -325,7 +331,11 @@ public class AlchemyPersona extends JavaPlugin {
 
             String discordId;
             try {
-                discordId = exchangeCodeForDiscordId(code, apiBase + "/api/nickname/auth/discord/callback");
+                String proxyPrefix = getConfig().getString("web.proxy-prefix", "/api/nickname");
+                if (proxyPrefix.endsWith("/")) proxyPrefix = proxyPrefix.substring(0, proxyPrefix.length() - 1);
+                if (!proxyPrefix.isEmpty() && !proxyPrefix.startsWith("/")) proxyPrefix = "/" + proxyPrefix;
+
+                discordId = exchangeCodeForDiscordId(code, apiBase + proxyPrefix + "/auth/discord/callback");
             } catch (Exception e) {
                 getLogger().warning("Discord OAuth error: " + e.getMessage());
                 ctx.redirect(editorUrl + "/?error=oauth_failed");
@@ -652,6 +662,7 @@ public class AlchemyPersona extends JavaPlugin {
     public void onDisable() {
         if (server != null) server.stop();
         if (nicknameManager != null) nicknameManager.saveNicknames();
+        saveSessions();
         instance = null;
         getLogger().info("AlchemyPersona has been disabled.");
     }
@@ -675,6 +686,33 @@ public class AlchemyPersona extends JavaPlugin {
         pinsConfig         = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "pins.yml"));
         tagsConfig         = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "tags.yml"));
         joinMessagesConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "join_messages.yml"));
+    }
+
+    private void saveSessions() {
+        File file = new File(getDataFolder(), "sessions.yml");
+        YamlConfiguration cfg = new YamlConfiguration();
+        discordSessions.forEach((token, sess) -> {
+            cfg.set("discord." + token + ".id", sess.discordId());
+            cfg.set("discord." + token + ".expiry", sess.expiresAt());
+        });
+        try { cfg.save(file); } catch (Exception e) { getLogger().warning("Failed to save sessions: " + e.getMessage()); }
+    }
+
+    private void loadSessions() {
+        File file = new File(getDataFolder(), "sessions.yml");
+        if (!file.exists()) return;
+        YamlConfiguration cfg = YamlConfiguration.loadConfiguration(file);
+        var section = cfg.getConfigurationSection("discord");
+        if (section == null) return;
+        long now = System.currentTimeMillis();
+        for (String token : section.getKeys(false)) {
+            String id = cfg.getString("discord." + token + ".id");
+            long expiry = cfg.getLong("discord." + token + ".expiry");
+            if (id != null && expiry > now) {
+                discordSessions.put(token, new DiscordSession(id, expiry));
+            }
+        }
+        getLogger().info("Loaded " + discordSessions.size() + " active Discord sessions.");
     }
 
     private void loadNexoGlyphs() {
