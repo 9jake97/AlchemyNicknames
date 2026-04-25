@@ -86,7 +86,7 @@ function Toast({ message, type = 'success', onDone }) {
 // ─── DiscordButton ────────────────────────────────────────────────────────────
 
 function DiscordButton({ apiBase, label = 'Login with Discord' }) {
-  const url = `${apiBase}/auth/discord`;
+  const url = `${apiBase}/api/nickname/auth/discord`;
   return (
     <a
       href={url}
@@ -114,7 +114,7 @@ function LinkCodeEntry({ dsession, apiBase, onLinked }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${apiBase}/api/link-code`, {
+      const res = await fetch(`${apiBase}/api/nickname/link-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ dsession, code: code.trim().toUpperCase() })
@@ -389,7 +389,7 @@ function App() {
     }
     setIsLoading(true);
     try {
-      const res = await fetch(`${base}/api/accounts?dsession=${dsession}`);
+      const res = await fetch(`${base}/api/nickname/accounts?dsession=${dsession}`);
       if (!res.ok) { setToast({ message: 'Discord session invalid or expired.', type: 'error' }); return; }
       const accounts = await res.json(); // plain array
 

@@ -298,7 +298,7 @@ public class AlchemyPersona extends JavaPlugin {
             oauthStates.put(state, System.currentTimeMillis() + 10 * 60 * 1000L);
 
             String redirectUri = java.net.URLEncoder.encode(
-                apiBase + "/auth/discord/callback", java.nio.charset.StandardCharsets.UTF_8);
+                apiBase + "/api/nickname/auth/discord/callback", java.nio.charset.StandardCharsets.UTF_8);
             ctx.redirect("https://discord.com/api/oauth2/authorize"
                 + "?client_id=" + clientId
                 + "&redirect_uri=" + redirectUri
@@ -325,7 +325,7 @@ public class AlchemyPersona extends JavaPlugin {
 
             String discordId;
             try {
-                discordId = exchangeCodeForDiscordId(code, apiBase + "/auth/discord/callback");
+                discordId = exchangeCodeForDiscordId(code, apiBase + "/api/nickname/auth/discord/callback");
             } catch (Exception e) {
                 getLogger().warning("Discord OAuth error: " + e.getMessage());
                 ctx.redirect(editorUrl + "/?error=oauth_failed");
@@ -360,7 +360,7 @@ public class AlchemyPersona extends JavaPlugin {
         });
 
         // ── Link a Minecraft account via code (from /linkpersona) ────────────
-        server.post("/api/link-code", ctx -> {
+        server.post("/link-code", ctx -> {
             try {
                 @SuppressWarnings("unchecked")
                 var body = (java.util.Map<String, String>) ctx.bodyAsClass(java.util.Map.class);
