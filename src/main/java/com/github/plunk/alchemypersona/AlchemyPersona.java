@@ -203,6 +203,7 @@ public class AlchemyPersona extends JavaPlugin {
         
         // Force-initialize Jackson to prevent "zip file closed" errors during lazy loading
         io.javalin.json.JavalinJackson jackson = new io.javalin.json.JavalinJackson();
+        jackson.getMapper(); // Force lazy initialization NOW
         
         server = io.javalin.Javalin.create(config -> {
             config.showJavalinBanner = false;
