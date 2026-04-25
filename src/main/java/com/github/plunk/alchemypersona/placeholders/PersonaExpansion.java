@@ -46,11 +46,13 @@ public class PersonaExpansion extends PlaceholderExpansion {
 
         // Nicknames
         if (params.equalsIgnoreCase("nickname")) {
+            if (plugin.getNicknameManager() == null) return player.getName();
             String nick = plugin.getNicknameManager().getNickname(player.getUniqueId());
             return nick != null ? nick : player.getName();
         }
 
         if (params.equalsIgnoreCase("displayname")) {
+            if (plugin.getNicknameManager() == null) return player.getName();
             String nick = plugin.getNicknameManager().getNickname(player.getUniqueId());
             if (nick == null) return player.getName();
             Component component = plugin.getNicknameManager().parseNickname(nick);
@@ -59,16 +61,19 @@ public class PersonaExpansion extends PlaceholderExpansion {
 
         // Tags
         if (params.equalsIgnoreCase("tag")) {
+            if (plugin.getTagManager() == null) return "";
             return plugin.getTagManager().getPlayerTagDisplay(player.getUniqueId());
         }
 
         if (params.equalsIgnoreCase("tag_id")) {
+            if (plugin.getTagManager() == null) return "";
             String id = plugin.getTagManager().getPlayerTagId(player.getUniqueId());
             return id != null ? id : "";
         }
 
         // Pins
         if (params.equalsIgnoreCase("pin")) {
+            if (plugin.getPinManager() == null) return "";
             String pin = plugin.getPinManager().getCurrentPin(player.isOnline() ? player.getPlayer() : null);
             return pin != null ? pin : "";
         }

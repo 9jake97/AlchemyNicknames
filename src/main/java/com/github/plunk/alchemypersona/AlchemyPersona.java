@@ -202,6 +202,13 @@ public class AlchemyPersona extends JavaPlugin {
             config.bundledPlugins.enableCors(cors -> cors.addRule(it -> it.anyHost()));
         });
 
+        // Global Error Handling to catch 500s
+        server.exception(Exception.class, (e, ctx) -> {
+            getLogger().severe("WEB API ERROR: " + e.getMessage());
+            e.printStackTrace();
+            ctx.status(500).result("Internal Server Error: " + e.getMessage());
+        });
+
         server.get("/health", ctx -> ctx.result("AlchemyPersona API is UP"));
 
         server.get("/data", ctx -> {
@@ -211,7 +218,13 @@ public class AlchemyPersona extends JavaPlugin {
             if (session == null || System.currentTimeMillis() > session.expiresAt()) {
                 ctx.status(401).result("Invalid or expired token"); return;
             }
-            java.util.UUID uuid = java.util.UUID.fromString(session.uuid());
+            java.util.UUID uuid;
+            try {
+                uuid = java.util.UUID.fromString(session.uuid());
+            } catch (Exception e) {
+                ctx.status(400).result("Invalid UUID in session");
+                return;
+            }
             org.bukkit.OfflinePlayer offlinePlayer = org.bukkit.Bukkit.getOfflinePlayer(uuid);
             
             // Get LuckPerms user for permission checks (even if offline)
@@ -226,8 +239,8 @@ public class AlchemyPersona extends JavaPlugin {
             }
 
             var data = new java.util.HashMap<String, Object>();
-            data.put("playerName", offlinePlayer.getName());
-            data.put("nickname", nicknameManager.getNickname(uuid));
+            data.put("playerName", offlinePlayer.getName() != null ? offlinePlayer.getName() : "Unknown");
+            data.put("nickname", nicknameManager != null ? nicknameManager.getNickname(uuid) : null);
             
             final net.luckperms.api.model.user.User finalLpUser = lpUser;
             java.util.function.Predicate<String> hasPerm = (perm) -> {
