@@ -2,6 +2,8 @@ package com.github.plunk.alchemypersona;
 
 import com.github.plunk.alchemypersona.nicknames.commands.NicknameCommand;
 import com.github.plunk.alchemypersona.commands.PersonaImportCommand;
+import com.github.plunk.alchemypersona.commands.LinkPersonaCommand;
+import com.github.plunk.alchemypersona.discord.LinkManager;
 import com.github.plunk.alchemypersona.nicknames.listeners.PlayerListener;
 import com.github.plunk.alchemypersona.nicknames.managers.NicknameManager;
 
@@ -25,14 +27,26 @@ import java.io.File;
 public class AlchemyPersona extends JavaPlugin {
 
     private static AlchemyPersona instance;
-    
+
     // Nickname Module
     private NicknameManager nicknameManager;
     private io.javalin.Javalin server;
     private record Session(String uuid, long expiresAt) {}
-    private static final long SESSION_TTL_MS = 10 * 60 * 1000L;
-    private final java.util.Map<String, Session> sessions = new java.util.concurrent.ConcurrentHashMap<>();
+    private record DiscordSession(String discordId, long expiresAt) {}
+    private record LinkCode(java.util.UUID uuid, long expiresAt) {}
+    private static final long SESSION_TTL_MS         = 10 * 60 * 1000L;
+    private static final long DISCORD_SESSION_TTL_MS = 7L * 24 * 60 * 60 * 1000L;
+    private static final long LINK_CODE_TTL_MS       = 10 * 60 * 1000L;
+    private final java.util.Map<String, Session>        sessions        = new java.util.concurrent.ConcurrentHashMap<>();
+    private final java.util.Map<String, DiscordSession> discordSessions = new java.util.concurrent.ConcurrentHashMap<>();
+    // oauthStates: CSRF state token → expiry timestamp
+    private final java.util.Map<String, Long>            oauthStates     = new java.util.concurrent.ConcurrentHashMap<>();
+    // linkCodes: short code → LinkCode(uuid, expiry)  (from /linkpersona command)
+    private final java.util.Map<String, LinkCode>        linkCodes       = new java.util.concurrent.ConcurrentHashMap<>();
     private final java.util.Random random = new java.util.Random();
+
+    // Discord Module
+    private LinkManager linkManager;
 
     // Pins Module
     private PinManager pinManager;
@@ -68,18 +82,30 @@ public class AlchemyPersona extends JavaPlugin {
 
         loadModuleConfigs();
 
+        linkManager = new LinkManager(this);
+
         nicknameManager = new NicknameManager(this);
         nicknameManager.loadNicknames();
         registerNicknameCommands();
         registerImportCommand();
+        registerLinkCommand();
         getServer().getPluginManager().registerEvents(new PlayerListener(this, nicknameManager), this);
-        
-        startWebServer();
-        getServer().getScheduler().runTaskTimerAsynchronously(this,
-                () -> sessions.entrySet().removeIf(e -> System.currentTimeMillis() > e.getValue().expiresAt()),
-                6000L, 6000L);
 
-        // 2. Initialize Pins
+        startWebServer();
+
+        // Expire game sessions every 5 min
+        getServer().getScheduler().runTaskTimerAsynchronously(this,
+            () -> sessions.entrySet().removeIf(e -> System.currentTimeMillis() > e.getValue().expiresAt()),
+            6000L, 6000L);
+        // Expire Discord sessions, link codes, and stale OAuth states hourly
+        getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
+            long now = System.currentTimeMillis();
+            discordSessions.entrySet().removeIf(e -> now > e.getValue().expiresAt());
+            linkCodes.entrySet().removeIf(e -> now > e.getValue().expiresAt());
+            oauthStates.entrySet().removeIf(e -> now > e.getValue());
+        }, 72000L, 72000L);
+
+        // 2. Pins
         if (getServer().getPluginManager().getPlugin("LuckPerms") != null) {
             this.pinManager = new PinManager(this);
             this.pinsMenuManager = new MenuManager(this, pinManager);
@@ -89,28 +115,30 @@ public class AlchemyPersona extends JavaPlugin {
             getServer().getPluginManager().registerEvents(pinsMenuManager, this);
         }
 
-        // 3. Initialize Tags
+        // 3. Tags
         this.tagManager = new TagManager(this);
         this.tagsMenuManager = new com.github.plunk.alchemypersona.tags.menu.MenuManager(this, tagManager);
-        com.github.plunk.alchemypersona.tags.commands.TagsCommand tagsCommand = 
+        com.github.plunk.alchemypersona.tags.commands.TagsCommand tagsCommand =
             new com.github.plunk.alchemypersona.tags.commands.TagsCommand(this, tagsMenuManager, tagManager);
         getCommand("tags").setExecutor(tagsCommand);
         getCommand("tags").setTabCompleter(tagsCommand);
-        getServer().getPluginManager().registerEvents(new com.github.plunk.alchemypersona.tags.listeners.TagListener(this, tagManager), this);
+        getServer().getPluginManager().registerEvents(
+            new com.github.plunk.alchemypersona.tags.listeners.TagListener(this, tagManager), this);
         getServer().getPluginManager().registerEvents(tagsMenuManager, this);
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PersonaExpansion(this).register();
         }
 
-        // 4. Initialize Join Messages
+        // 4. Join Messages
         com.github.plunk.alchemypersona.joinmessages.Data.setup(this);
         this.messageManager = new MessageManager(this);
         this.messageManager.loadMessages();
         this.joinMessagesGuiOptions = new GUIOptions(this);
         this.joinMessagesMenuManager = new MessageMenuManager(this);
         getServer().getPluginManager().registerEvents(this.joinMessagesMenuManager, this);
-        getServer().getPluginManager().registerEvents(new com.github.plunk.alchemypersona.joinmessages.listeners.JoinListener(this), this);
-        com.github.plunk.alchemypersona.joinmessages.commands.CommandAlchemyJoinMessages ajmHandler = 
+        getServer().getPluginManager().registerEvents(
+            new com.github.plunk.alchemypersona.joinmessages.listeners.JoinListener(this), this);
+        com.github.plunk.alchemypersona.joinmessages.commands.CommandAlchemyJoinMessages ajmHandler =
             new com.github.plunk.alchemypersona.joinmessages.commands.CommandAlchemyJoinMessages(this);
         getCommand("alchemyjoinmessages").setExecutor(ajmHandler);
         getCommand("alchemyjoinmessages").setTabCompleter(ajmHandler);
@@ -119,6 +147,8 @@ public class AlchemyPersona extends JavaPlugin {
 
         getLogger().info("AlchemyPersona v" + getDescription().getVersion() + " has been enabled!");
     }
+
+    // ─── Command Registration ────────────────────────────────────────────────
 
     private void registerNicknameCommands() {
         NicknameCommand nicknameExecutor = new NicknameCommand(this, nicknameManager);
@@ -137,13 +167,12 @@ public class AlchemyPersona extends JavaPlugin {
             sessions.put(token, new Session(player.getUniqueId().toString(), System.currentTimeMillis() + SESSION_TTL_MS));
 
             String editorUrl = getConfig().getString("web.editor-url", "https://plunk.github.io/AlchemyPersona");
-            String apiBase = getConfig().getString("web.base-url", "https://stats.bloc.kz");
+            String apiBase   = getConfig().getString("web.base-url", "https://stats.bloc.kz");
             if (editorUrl.endsWith("/")) editorUrl = editorUrl.substring(0, editorUrl.length() - 1);
-            if (apiBase.endsWith("/")) apiBase = apiBase.substring(0, apiBase.length() - 1);
+            if (apiBase.endsWith("/"))   apiBase   = apiBase.substring(0, apiBase.length() - 1);
             String link = editorUrl + "/?player=" + player.getName() + "&token=" + token + "&api=" + apiBase;
 
             var mm = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage();
-
             player.sendMessage(mm.deserialize("<dark_gray>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</dark_gray>"));
             player.sendMessage(mm.deserialize("      <gradient:#FF0080:#8000FF><bold>✦ Persona Designer ✦</bold></gradient>"));
             player.sendMessage(mm.deserialize(" <dark_gray>»</dark_gray> <gray>Design your own <gradient:#FF0080:#8000FF>RGB gradient</gradient> identity</gray>"));
@@ -154,7 +183,6 @@ public class AlchemyPersona extends JavaPlugin {
             player.sendMessage(mm.deserialize(" <dark_gray>»</dark_gray> <gray>Bedrock / can't click? Visit the site and enter:</gray>"));
             player.sendMessage(mm.deserialize("   <dark_gray>Name: </dark_gray><white>" + player.getName() + "</white>   <dark_gray>Code: </dark_gray><gradient:#00c6ff:#8000FF><bold>" + token + "</bold></gradient>"));
             player.sendMessage(mm.deserialize("<dark_gray>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</dark_gray>"));
-            
             return true;
         });
     }
@@ -165,108 +193,244 @@ public class AlchemyPersona extends JavaPlugin {
         getCommand("personaimport").setTabCompleter(importExecutor);
     }
 
-    public void reload() {
-        reloadConfig();
-        loadModuleConfigs();
-        
-        nicknameManager.loadSettings();
-        nicknameManager.loadNicknames();
-        
-        if (pinManager != null) pinsMenuManager.loadMenu();
-        if (tagManager != null) {
-            tagManager.reload();
-            tagsMenuManager.reload();
-        }
-        if (messageManager != null) {
-            com.github.plunk.alchemypersona.joinmessages.Data.reload();
-            messageManager.loadMessages();
-            joinMessagesMenuManager.loadMenu();
-        }
+    private void registerLinkCommand() {
+        LinkPersonaCommand linkExecutor = new LinkPersonaCommand(this);
+        getCommand("linkpersona").setExecutor(linkExecutor);
+        getCommand("linkpersona").setTabCompleter(linkExecutor);
     }
 
-    private void loadModuleConfigs() {
-        nicknamesConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "nicknames.yml"));
-        pinsConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "pins.yml"));
-        tagsConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "tags.yml"));
-        joinMessagesConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "join_messages.yml"));
+    // ─── Discord OAuth helpers ───────────────────────────────────────────────
+
+    /** Called by /linkpersona — generates and stores a short link code, returned to the player. */
+    public String generateLinkCode(java.util.UUID uuid) {
+        // Remove any existing codes for this player so they can't accumulate
+        linkCodes.entrySet().removeIf(e -> e.getValue().uuid().equals(uuid));
+        String chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I to avoid confusion
+        StringBuilder sb = new StringBuilder(6);
+        for (int i = 0; i < 6; i++) sb.append(chars.charAt(random.nextInt(chars.length())));
+        String code = sb.toString();
+        linkCodes.put(code, new LinkCode(uuid, System.currentTimeMillis() + LINK_CODE_TTL_MS));
+        return code;
     }
 
-    public FileConfiguration getNicknamesConfig() { return nicknamesConfig; }
-    public FileConfiguration getPinsConfig() { return pinsConfig; }
-    public FileConfiguration getTagsConfig() { return tagsConfig; }
-    public FileConfiguration getJoinMessagesConfig() { return joinMessagesConfig; }
+    /** Exchanges a Discord OAuth code for the user's Discord snowflake ID. */
+    private String exchangeCodeForDiscordId(String code, String redirectUri) throws Exception {
+        String clientId     = getConfig().getString("discord.client-id", "");
+        String clientSecret = getConfig().getString("discord.client-secret", "");
+
+        var client = java.net.http.HttpClient.newHttpClient();
+
+        String body = "client_id=" + clientId
+            + "&client_secret=" + clientSecret
+            + "&grant_type=authorization_code"
+            + "&code=" + java.net.URLEncoder.encode(code, java.nio.charset.StandardCharsets.UTF_8)
+            + "&redirect_uri=" + java.net.URLEncoder.encode(redirectUri, java.nio.charset.StandardCharsets.UTF_8);
+
+        var tokenReq = java.net.http.HttpRequest.newBuilder()
+            .uri(java.net.URI.create("https://discord.com/api/oauth2/token"))
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .POST(java.net.http.HttpRequest.BodyPublishers.ofString(body))
+            .build();
+        var tokenBody = client.send(tokenReq, java.net.http.HttpResponse.BodyHandlers.ofString()).body();
+        var tokenJson = new com.fasterxml.jackson.databind.ObjectMapper().readTree(tokenBody);
+        if (!tokenJson.has("access_token"))
+            throw new RuntimeException("Discord token exchange failed: " + tokenBody);
+        String accessToken = tokenJson.get("access_token").asText();
+
+        var userReq = java.net.http.HttpRequest.newBuilder()
+            .uri(java.net.URI.create("https://discord.com/api/users/@me"))
+            .header("Authorization", "Bearer " + accessToken)
+            .build();
+        var userBody = client.send(userReq, java.net.http.HttpResponse.BodyHandlers.ofString()).body();
+        var userJson = new com.fasterxml.jackson.databind.ObjectMapper().readTree(userBody);
+        return userJson.get("id").asText();
+    }
+
+    private String randomToken(int len) {
+        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        var sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++) sb.append(chars.charAt(random.nextInt(chars.length())));
+        return sb.toString();
+    }
+
+    // ─── Web Server ──────────────────────────────────────────────────────────
 
     private void startWebServer() {
         if (server != null) return;
 
         int port = getConfig().getInt("web.port", 8085);
-        
-        // Force-initialize Jackson to prevent "zip file closed" errors during lazy loading
-        io.javalin.json.JavalinJackson jackson = new io.javalin.json.JavalinJackson();
-        jackson.getMapper(); // Force lazy initialization NOW
-        
+
+        // Implement JsonMapper directly to avoid JavalinJackson's lazy Class.forName()
+        // scanning which triggers "zip file closed" via Paper's reflection proxy.
+        final com.fasterxml.jackson.databind.ObjectMapper om =
+            new com.fasterxml.jackson.databind.ObjectMapper()
+                .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        final io.javalin.json.JsonMapper jsonMapper = new io.javalin.json.JsonMapper() {
+            @Override
+            public String toJsonString(Object obj, java.lang.reflect.Type type) {
+                try { return om.writeValueAsString(obj); }
+                catch (Exception e) { throw new RuntimeException(e); }
+            }
+            @Override @SuppressWarnings("unchecked")
+            public <T> T fromJsonString(String json, java.lang.reflect.Type targetType) {
+                try { return (T) om.readValue(json, om.constructType(targetType)); }
+                catch (Exception e) { throw new RuntimeException(e); }
+            }
+        };
+
         server = io.javalin.Javalin.create(config -> {
             config.showJavalinBanner = false;
-            config.jsonMapper(jackson); // Use the pre-initialized mapper
-            config.bundledPlugins.enableCors(cors -> {
-                cors.addRule(it -> it.anyHost());
-            });
+            config.jsonMapper(jsonMapper);
+            config.bundledPlugins.enableCors(cors -> cors.addRule(it -> it.anyHost()));
         });
 
         server.get("/health", ctx -> ctx.result("AlchemyPersona API is UP"));
 
-        server.get("/data", ctx -> {
-            String token = ctx.queryParam("token");
-            if (token == null) { ctx.status(400).result("Missing token"); return; }
-            Session session = sessions.get(token);
-            if (session == null || System.currentTimeMillis() > session.expiresAt()) {
-                ctx.status(401).result("Invalid or expired token"); return;
+        // ── Discord OAuth: initiate ──────────────────────────────────────────
+        server.get("/auth/discord", ctx -> {
+            String clientId = getConfig().getString("discord.client-id", "");
+            if (clientId.isBlank()) { ctx.status(503).result("Discord not configured"); return; }
+
+            String apiBase = getConfig().getString("web.base-url", "");
+            if (apiBase.endsWith("/")) apiBase = apiBase.substring(0, apiBase.length() - 1);
+
+            String state = randomToken(20);
+            oauthStates.put(state, System.currentTimeMillis() + 10 * 60 * 1000L);
+
+            String redirectUri = java.net.URLEncoder.encode(
+                apiBase + "/auth/discord/callback", java.nio.charset.StandardCharsets.UTF_8);
+            ctx.redirect("https://discord.com/api/oauth2/authorize"
+                + "?client_id=" + clientId
+                + "&redirect_uri=" + redirectUri
+                + "&response_type=code"
+                + "&scope=identify"
+                + "&state=" + state);
+        });
+
+        // ── Discord OAuth: callback ──────────────────────────────────────────
+        server.get("/auth/discord/callback", ctx -> {
+            String code  = ctx.queryParam("code");
+            String state = ctx.queryParam("state");
+
+            String apiBase   = getConfig().getString("web.base-url", "");
+            String editorUrl = getConfig().getString("web.editor-url", "");
+            if (apiBase.endsWith("/"))   apiBase   = apiBase.substring(0, apiBase.length() - 1);
+            if (editorUrl.endsWith("/")) editorUrl = editorUrl.substring(0, editorUrl.length() - 1);
+
+            Long stateExpiry = state != null ? oauthStates.remove(state) : null;
+            if (code == null || stateExpiry == null || System.currentTimeMillis() > stateExpiry) {
+                ctx.redirect(editorUrl + "/?error=oauth_failed");
+                return;
             }
-            
-            java.util.UUID uuid;
+
+            String discordId;
             try {
-                uuid = java.util.UUID.fromString(session.uuid());
+                discordId = exchangeCodeForDiscordId(code, apiBase + "/auth/discord/callback");
             } catch (Exception e) {
-                ctx.status(400).result("Invalid UUID in session"); return;
+                getLogger().warning("Discord OAuth error: " + e.getMessage());
+                ctx.redirect(editorUrl + "/?error=oauth_failed");
+                return;
             }
-            
-            org.bukkit.OfflinePlayer offlinePlayer = org.bukkit.Bukkit.getOfflinePlayer(uuid);
-            
-            // Get LuckPerms user for permission checks (even if offline)
+
+            String dsession = randomToken(32);
+            discordSessions.put(dsession, new DiscordSession(discordId, System.currentTimeMillis() + DISCORD_SESSION_TTL_MS));
+            String encodedApi = java.net.URLEncoder.encode(apiBase, java.nio.charset.StandardCharsets.UTF_8);
+            ctx.redirect(editorUrl + "/?dsession=" + dsession + "&api=" + encodedApi);
+        });
+
+        // ── Linked accounts list (for Discord login) ─────────────────────────
+        server.get("/accounts", ctx -> {
+            String dsessionToken = ctx.queryParam("dsession");
+            if (dsessionToken == null) { ctx.status(400).result("Missing dsession"); return; }
+            DiscordSession dsess = discordSessions.get(dsessionToken);
+            if (dsess == null || System.currentTimeMillis() > dsess.expiresAt()) {
+                ctx.status(401).result("Invalid or expired Discord session"); return;
+            }
+
+            var uuids    = linkManager.getLinkedAccounts(dsess.discordId());
+            var accounts = new java.util.ArrayList<java.util.Map<String, Object>>();
+            for (java.util.UUID uuid : uuids) {
+                var acc = new java.util.HashMap<String, Object>();
+                acc.put("uuid", uuid.toString());
+                org.bukkit.OfflinePlayer op = Bukkit.getOfflinePlayer(uuid);
+                acc.put("name", op.getName() != null ? op.getName() : uuid.toString());
+                accounts.add(acc);
+            }
+            ctx.json(accounts); // plain array
+        });
+
+        // ── Link a Minecraft account via code (from /linkpersona) ────────────
+        server.post("/api/link-code", ctx -> {
+            try {
+                @SuppressWarnings("unchecked")
+                var body = (java.util.Map<String, String>) ctx.bodyAsClass(java.util.Map.class);
+                String dsessionToken = body.get("dsession");
+                String code          = body.get("code");
+                if (dsessionToken == null || code == null) {
+                    ctx.status(400).result("Missing dsession or code"); return;
+                }
+
+                DiscordSession dsess = discordSessions.get(dsessionToken);
+                if (dsess == null || System.currentTimeMillis() > dsess.expiresAt()) {
+                    ctx.status(401).result("Invalid or expired Discord session"); return;
+                }
+
+                LinkCode lc = linkCodes.remove(code.toUpperCase());
+                if (lc == null || System.currentTimeMillis() > lc.expiresAt()) {
+                    ctx.status(400).result("Invalid or expired link code"); return;
+                }
+
+                linkManager.link(dsess.discordId(), lc.uuid());
+
+                org.bukkit.entity.Player online = Bukkit.getPlayer(lc.uuid());
+                if (online != null) {
+                    online.sendMessage(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage()
+                        .deserialize("<green>✔ Your Discord account has been linked! You can now sign in at the Persona Designer.</green>"));
+                }
+
+                org.bukkit.OfflinePlayer op = Bukkit.getOfflinePlayer(lc.uuid());
+                var resp = new java.util.HashMap<String, String>();
+                resp.put("uuid", lc.uuid().toString());
+                resp.put("name", op.getName() != null ? op.getName() : lc.uuid().toString());
+                ctx.json(resp);
+            } catch (Exception e) {
+                ctx.status(500).result("Error: " + e.getMessage());
+            }
+        });
+
+        // ── Persona data (token or dsession + uuid) ──────────────────────────
+        server.get("/data", ctx -> {
+            java.util.UUID uuid = resolveUuid(ctx);
+            if (uuid == null) return; // resolveUuid already wrote the error response
+
+            org.bukkit.OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+
             net.luckperms.api.model.user.User lpUser = null;
             var lp = getLuckPerms();
             if (lp != null) {
                 lpUser = lp.getUserManager().getUser(uuid);
-                if (lpUser == null) {
-                    // Try to load from storage if not in memory
-                    lpUser = lp.getUserManager().loadUser(uuid).join();
-                }
+                if (lpUser == null) lpUser = lp.getUserManager().loadUser(uuid).join();
             }
 
             var data = new java.util.HashMap<String, Object>();
             data.put("playerName", offlinePlayer.getName());
             data.put("nickname", nicknameManager.getNickname(uuid));
-            
+
             final net.luckperms.api.model.user.User finalLpUser = lpUser;
-            java.util.function.Predicate<String> hasPerm = (perm) -> {
-                if (finalLpUser != null) {
-                    return finalLpUser.getCachedData().getPermissionData().checkPermission(perm).asBoolean();
-                }
-                return false;
-            };
+            java.util.function.Predicate<String> hasPerm = perm ->
+                finalLpUser != null && finalLpUser.getCachedData().getPermissionData()
+                    .checkPermission(perm).asBoolean();
 
             // Pins
             var pins = new java.util.ArrayList<java.util.Map<String, Object>>();
             try {
                 if (pinManager != null && getPinsConfig() != null) {
-                    // For current pin, we might need online player or LP metadata
                     String currentPin = null;
                     if (offlinePlayer.isOnline()) {
                         currentPin = pinManager.getCurrentPin(offlinePlayer.getPlayer());
                     } else if (finalLpUser != null) {
                         currentPin = finalLpUser.getCachedData().getMetaData().getSuffix();
                     }
-
                     var section = getPinsConfig().getConfigurationSection("pins");
                     if (section != null) {
                         for (String pinId : section.getKeys(false)) {
@@ -275,39 +439,30 @@ public class AlchemyPersona extends JavaPlugin {
                             pinData.put("displayName", getPinsConfig().getString("pins." + pinId + ".display_name"));
                             String unicode = getPinsConfig().getString("pins." + pinId + ".pin_unicode");
                             pinData.put("unicode", unicode);
-                            
-                            // 1. Explicit Nexo Texture Config
                             String explicitTexture = getPinsConfig().getString("pins." + pinId + ".nexo_texture");
                             if (explicitTexture != null && explicitTexture.contains(":")) {
                                 String[] parts = explicitTexture.split(":");
                                 pinData.put("imageUrl", "/api/nickname/assets/" + parts[0] + "/textures/" + parts[1] + ".png");
                             }
-                            
-                            // 2. Nexo Mapping Lookup (by Unicode)
                             if (!pinData.containsKey("imageUrl") && unicode != null) {
-                                String stripped = org.bukkit.ChatColor.stripColor(org.bukkit.ChatColor.translateAlternateColorCodes('&', unicode)).trim();
-                                if (nexoMapping.containsKey(stripped)) {
+                                String stripped = org.bukkit.ChatColor.stripColor(
+                                    org.bukkit.ChatColor.translateAlternateColorCodes('&', unicode)).trim();
+                                if (nexoMapping.containsKey(stripped))
                                     pinData.put("imageUrl", nexoMapping.get(stripped));
-                                }
                             }
-                            
-                            // 3. Fallback: Lookup by ID (case-insensitive)
                             if (!pinData.containsKey("imageUrl")) {
                                 String lowerId = pinId.toLowerCase();
-                                if (nexoMapping.containsKey(lowerId)) {
+                                if (nexoMapping.containsKey(lowerId))
                                     pinData.put("imageUrl", nexoMapping.get(lowerId));
-                                }
                             }
-                            
                             pinData.put("owned", hasPerm.test("LPP.pin." + pinId));
-                            pinData.put("selected", pinId.equals(currentPin) || (currentPin != null && currentPin.equals(unicode)));
+                            pinData.put("selected", pinId.equals(currentPin)
+                                || (currentPin != null && currentPin.equals(unicode)));
                             pins.add(pinData);
                         }
                     }
                 }
-            } catch (Exception e) {
-                getLogger().warning("Error loading Pins for API: " + e.getMessage());
-            }
+            } catch (Exception e) { getLogger().warning("Error loading Pins for API: " + e.getMessage()); }
             data.put("pins", pins);
 
             // Tags
@@ -329,16 +484,15 @@ public class AlchemyPersona extends JavaPlugin {
                         }
                     }
                 }
-            } catch (Exception e) {
-                getLogger().warning("Error loading Tags for API: " + e.getMessage());
-            }
+            } catch (Exception e) { getLogger().warning("Error loading Tags for API: " + e.getMessage()); }
             data.put("tags", tags);
 
             // Join Messages
             var jms = new java.util.ArrayList<java.util.Map<String, Object>>();
             try {
                 if (messageManager != null) {
-                    String currentJm = com.github.plunk.alchemypersona.joinmessages.Data.get().getString("players." + uuid);
+                    String currentJm = com.github.plunk.alchemypersona.joinmessages.Data.get()
+                        .getString("players." + uuid);
                     String pName = offlinePlayer.getName() != null ? offlinePlayer.getName() : "Player";
                     for (var jm : messageManager.getLoadedMessages()) {
                         var jmData = new java.util.HashMap<String, Object>();
@@ -349,21 +503,18 @@ public class AlchemyPersona extends JavaPlugin {
                         jms.add(jmData);
                     }
                 }
-            } catch (Exception e) {
-                getLogger().warning("Error loading Join Messages for API: " + e.getMessage());
-            }
+            } catch (Exception e) { getLogger().warning("Error loading Join Messages for API: " + e.getMessage()); }
             data.put("joinMessages", jms);
 
             ctx.json(data);
         });
 
-        // Serve Nexo assets
+        // ── Nexo assets ──────────────────────────────────────────────────────
         server.get("/api/nickname/assets/{namespace}/textures/{path}", ctx -> {
-            String namespace = ctx.pathParam("namespace");
-            String path = ctx.pathParam("path");
+            String namespace  = ctx.pathParam("namespace");
+            String path       = ctx.pathParam("path");
             java.io.File assetsFolder = new java.io.File(getDataFolder().getParentFile(), "Nexo/pack/assets");
-            java.io.File textureFile = new java.io.File(assetsFolder, namespace + "/textures/" + path);
-            
+            java.io.File textureFile  = new java.io.File(assetsFolder, namespace + "/textures/" + path);
             if (textureFile.exists()) {
                 ctx.contentType("image/png");
                 ctx.result(new java.io.FileInputStream(textureFile));
@@ -372,29 +523,37 @@ public class AlchemyPersona extends JavaPlugin {
             }
         });
 
-        io.javalin.http.Handler saveHandler = ctx -> {
+        // ── Save ─────────────────────────────────────────────────────────────
+        server.post("/save", ctx -> {
             try {
                 SaveRequest req = ctx.bodyAsClass(SaveRequest.class);
-                if (req == null || req.token == null) {
-                    ctx.status(400).result("Bad Request: Missing token");
-                    return;
+                if (req == null) { ctx.status(400).result("Bad Request"); return; }
+
+                java.util.UUID uuid;
+                if (req.token != null) {
+                    Session session = sessions.get(req.token);
+                    if (session == null || System.currentTimeMillis() > session.expiresAt()) {
+                        ctx.status(401).result("Invalid or expired session token"); return;
+                    }
+                    uuid = java.util.UUID.fromString(session.uuid());
+                } else if (req.dsession != null && req.uuid != null) {
+                    DiscordSession dsess = discordSessions.get(req.dsession);
+                    if (dsess == null || System.currentTimeMillis() > dsess.expiresAt()) {
+                        ctx.status(401).result("Invalid or expired Discord session"); return;
+                    }
+                    uuid = java.util.UUID.fromString(req.uuid);
+                    if (!linkManager.getLinkedAccounts(dsess.discordId()).contains(uuid)) {
+                        ctx.status(403).result("UUID not linked to this Discord account"); return;
+                    }
+                } else {
+                    ctx.status(400).result("Missing token or dsession+uuid"); return;
                 }
 
-                Session session = sessions.get(req.token);
-                if (session == null || System.currentTimeMillis() > session.expiresAt()) {
-                    ctx.status(401).result("Invalid or expired session token");
-                    return;
-                }
+                org.bukkit.entity.Player player = Bukkit.getPlayer(uuid);
 
-                java.util.UUID uuid = java.util.UUID.fromString(session.uuid());
-                org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(uuid);
-                
-                // Save Nickname
-                if (req.nickname != null) {
+                if (req.nickname != null)
                     nicknameManager.setNickname(uuid, req.nickname);
-                }
-                
-                // Save Pin
+
                 if (req.selectedPin != null && player != null) {
                     if (req.selectedPin.isEmpty()) {
                         pinManager.clearPin(player);
@@ -404,22 +563,16 @@ public class AlchemyPersona extends JavaPlugin {
                     }
                 }
 
-                // Save Tag
                 if (req.selectedTag != null && player != null) {
-                    if (req.selectedTag.isEmpty()) {
-                        tagManager.clearTag(player);
-                    } else {
-                        tagManager.setTag(player, req.selectedTag);
-                    }
+                    if (req.selectedTag.isEmpty()) tagManager.clearTag(player);
+                    else tagManager.setTag(player, req.selectedTag);
                 }
 
-                // Save Join Message
                 if (req.selectedJoinMessage != null) {
-                    if (req.selectedJoinMessage.isEmpty()) {
+                    if (req.selectedJoinMessage.isEmpty())
                         com.github.plunk.alchemypersona.joinmessages.Data.get().set("players." + uuid, null);
-                    } else {
+                    else
                         com.github.plunk.alchemypersona.joinmessages.Data.get().set("players." + uuid, req.selectedJoinMessage);
-                    }
                     com.github.plunk.alchemypersona.joinmessages.Data.save();
                 }
 
@@ -427,9 +580,7 @@ public class AlchemyPersona extends JavaPlugin {
             } catch (Exception e) {
                 ctx.status(500).result("Error: " + e.getMessage());
             }
-        };
-
-        server.post("/save", saveHandler);
+        });
 
         server.get("/current", ctx -> {
             String token = ctx.queryParam("token");
@@ -441,7 +592,9 @@ public class AlchemyPersona extends JavaPlugin {
             java.util.UUID uuid = java.util.UUID.fromString(session.uuid());
             String nick = nicknameManager.getNickname(uuid);
             ctx.contentType("application/json");
-            ctx.result("{\"nickname\":" + (nick != null ? "\"" + nick.replace("\\", "\\\\").replace("\"", "\\\"") + "\"" : "null") + "}");
+            ctx.result("{\"nickname\":" + (nick != null
+                ? "\"" + nick.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+                : "null") + "}");
         });
 
         try {
@@ -450,67 +603,131 @@ public class AlchemyPersona extends JavaPlugin {
         } catch (Exception e) {
             getLogger().severe("Could not start web server! Port " + port + " is already in use.");
             getLogger().severe("Identity Designer will be unavailable until this is fixed.");
-            server = null; // Set to null so onDisable doesn't try to stop it
+            server = null;
         }
     }
+
+    /**
+     * Resolves the target UUID from either a game token (?token=) or Discord session
+     * (?dsession= + ?uuid=). Writes the error response and returns null on failure.
+     */
+    private java.util.UUID resolveUuid(io.javalin.http.Context ctx) throws Exception {
+        String token    = ctx.queryParam("token");
+        String dsession = ctx.queryParam("dsession");
+        String uuidStr  = ctx.queryParam("uuid");
+
+        if (token != null) {
+            Session session = sessions.get(token);
+            if (session == null || System.currentTimeMillis() > session.expiresAt()) {
+                ctx.status(401).result("Invalid or expired token");
+                return null;
+            }
+            try { return java.util.UUID.fromString(session.uuid()); }
+            catch (Exception e) { ctx.status(400).result("Invalid UUID in session"); return null; }
+        }
+
+        if (dsession != null && uuidStr != null) {
+            DiscordSession dsess = discordSessions.get(dsession);
+            if (dsess == null || System.currentTimeMillis() > dsess.expiresAt()) {
+                ctx.status(401).result("Invalid or expired Discord session");
+                return null;
+            }
+            java.util.UUID uuid;
+            try { uuid = java.util.UUID.fromString(uuidStr); }
+            catch (Exception e) { ctx.status(400).result("Invalid UUID"); return null; }
+            if (!linkManager.getLinkedAccounts(dsess.discordId()).contains(uuid)) {
+                ctx.status(403).result("UUID not linked to this Discord account");
+                return null;
+            }
+            return uuid;
+        }
+
+        ctx.status(400).result("Missing token or dsession+uuid");
+        return null;
+    }
+
+    // ─── Lifecycle ───────────────────────────────────────────────────────────
 
     @Override
     public void onDisable() {
         if (server != null) server.stop();
         if (nicknameManager != null) nicknameManager.saveNicknames();
         instance = null;
-        getLogger().info("AlchemyPersona has been enabled!");
+        getLogger().info("AlchemyPersona has been disabled.");
     }
 
-    public static AlchemyPersona getInstance() {
-        return instance;
-    }
-
-    public NicknameManager getNicknameManager() { return nicknameManager; }
-    public PinManager getPinManager() { return pinManager; }
-    public TagManager getTagManager() { return tagManager; }
-    public MessageManager getMessageManager() { return messageManager; }
-    public MessageMenuManager getJoinMessagesMenuManager() { return joinMessagesMenuManager; }
-    public GUIOptions getJoinMessagesGuiOptions() { return joinMessagesGuiOptions; }
-
-    public net.luckperms.api.LuckPerms getLuckPerms() {
-        if (getServer().getPluginManager().getPlugin("LuckPerms") != null) {
-            return net.luckperms.api.LuckPermsProvider.get();
+    public void reload() {
+        reloadConfig();
+        loadModuleConfigs();
+        nicknameManager.loadSettings();
+        nicknameManager.loadNicknames();
+        if (pinManager != null) pinsMenuManager.loadMenu();
+        if (tagManager != null) { tagManager.reload(); tagsMenuManager.reload(); }
+        if (messageManager != null) {
+            com.github.plunk.alchemypersona.joinmessages.Data.reload();
+            messageManager.loadMessages();
+            joinMessagesMenuManager.loadMenu();
         }
-        return null;
+    }
+
+    private void loadModuleConfigs() {
+        nicknamesConfig    = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "nicknames.yml"));
+        pinsConfig         = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "pins.yml"));
+        tagsConfig         = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "tags.yml"));
+        joinMessagesConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "join_messages.yml"));
     }
 
     private void loadNexoGlyphs() {
         java.io.File nexoFolder = new java.io.File(getDataFolder().getParentFile(), "Nexo/glyphs");
         if (!nexoFolder.exists()) return;
-
         java.io.File[] files = nexoFolder.listFiles((dir, name) -> name.endsWith(".yml"));
         if (files == null) return;
-
         for (java.io.File file : files) {
-            org.bukkit.configuration.file.YamlConfiguration config = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(file);
-            for (String key : config.getKeys(false)) {
-                String charStr = config.getString(key + ".char");
-                String texture = config.getString(key + ".texture");
+            org.bukkit.configuration.file.YamlConfiguration cfg =
+                org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(file);
+            for (String key : cfg.getKeys(false)) {
+                String charStr = cfg.getString(key + ".char");
+                String texture = cfg.getString(key + ".texture");
                 if (charStr != null && texture != null) {
-                    // texture format: namespace:path
                     String[] parts = texture.split(":");
                     if (parts.length == 2) {
                         String imageUrl = "/api/nickname/assets/" + parts[0] + "/textures/" + parts[1] + ".png";
                         nexoMapping.put(charStr, imageUrl);
-                        
-                        // Also map by key (stripping _digits if present)
-                        String cleanKey = key.toLowerCase().replaceAll("_\\d+$", "");
-                        nexoMapping.put(cleanKey, imageUrl);
+                        nexoMapping.put(key.toLowerCase().replaceAll("_\\d+$", ""), imageUrl);
                     }
                 }
             }
         }
-        getLogger().info("Loaded " + nexoMapping.size() + " Nexo glyph mappings for Pins.");
+        getLogger().info("Loaded " + nexoMapping.size() + " Nexo glyph mappings.");
     }
+
+    // ─── Getters ─────────────────────────────────────────────────────────────
+
+    public static AlchemyPersona getInstance()              { return instance; }
+    public NicknameManager getNicknameManager()             { return nicknameManager; }
+    public PinManager getPinManager()                       { return pinManager; }
+    public TagManager getTagManager()                       { return tagManager; }
+    public MessageManager getMessageManager()               { return messageManager; }
+    public MessageMenuManager getJoinMessagesMenuManager()  { return joinMessagesMenuManager; }
+    public GUIOptions getJoinMessagesGuiOptions()           { return joinMessagesGuiOptions; }
+    public LinkManager getLinkManager()                     { return linkManager; }
+    public FileConfiguration getNicknamesConfig()           { return nicknamesConfig; }
+    public FileConfiguration getPinsConfig()                { return pinsConfig; }
+    public FileConfiguration getTagsConfig()                { return tagsConfig; }
+    public FileConfiguration getJoinMessagesConfig()        { return joinMessagesConfig; }
+
+    public net.luckperms.api.LuckPerms getLuckPerms() {
+        if (getServer().getPluginManager().getPlugin("LuckPerms") != null)
+            return net.luckperms.api.LuckPermsProvider.get();
+        return null;
+    }
+
+    // ─── Inner types ─────────────────────────────────────────────────────────
 
     public static class SaveRequest {
         public String token;
+        public String dsession;
+        public String uuid;
         public String nickname;
         public String selectedPin;
         public String selectedTag;

@@ -11,6 +11,19 @@ export default defineConfig({
         target: 'http://localhost:8085',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/nickname/, '')
+      },
+      '/api/link-code': {
+        target: 'http://localhost:8085',
+        changeOrigin: true
+      },
+      '/api/accounts': {
+        target: 'http://localhost:8085',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/accounts/, '/accounts')
+      },
+      '/auth': {
+        target: 'http://localhost:8085',
+        changeOrigin: true
       }
     }
   }

@@ -13,3 +13,10 @@ web:
   base-url: "https://stats.bloc.kz"
   # The URL of the Persona Designer frontend
   editor-url: "https://nickname.bloc.kz"
+
+# Discord OAuth2 Integration (for /linkpersona)
+# Create an application at https://discord.com/developers/applications
+# Add redirect URI: <base-url>/auth/discord/callback
+discord:
+  client-id: ""
+  client-secret: ""

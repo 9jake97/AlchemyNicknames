@@ -25,6 +25,10 @@ commands:
     usage: /nicknameeditor
     permission: alchemypersona.nickname
     aliases: [ personaeditor, designer ]
+  linkpersona:
+    description: Link your Minecraft account to Discord
+    usage: /linkpersona [unlink]
+    permission: alchemypersona.linkpersona
 
   # Pins
   pins:
@@ -58,6 +62,9 @@ permissions:
   alchemypersona.joinmessages:
     description: Allows access to join messages menu.
     default: op
+  alchemypersona.linkpersona:
+    description: Allows a player to link their account to Discord.
+    default: true
   alchemypersona.admin:
     description: Administrative access for all persona modules.
     default: op
