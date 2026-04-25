@@ -4,18 +4,17 @@ import com.github.plunk.alchemypersona.nicknames.commands.NicknameCommand;
 import com.github.plunk.alchemypersona.commands.PersonaImportCommand;
 import com.github.plunk.alchemypersona.nicknames.listeners.PlayerListener;
 import com.github.plunk.alchemypersona.nicknames.managers.NicknameManager;
-import com.github.plunk.alchemypersona.nicknames.placeholders.NicknameExpansion;
 
 import com.github.plunk.alchemypersona.pins.commands.PinsCommand;
 import com.github.plunk.alchemypersona.pins.managers.PinManager;
 import com.github.plunk.alchemypersona.pins.menu.MenuManager;
 
 import com.github.plunk.alchemypersona.tags.managers.TagManager;
-import com.github.plunk.alchemypersona.tags.placeholders.TagsExpansion;
+import com.github.plunk.alchemypersona.joinmessages.gui.GUIOptions;
+import com.github.plunk.alchemypersona.placeholders.PersonaExpansion;
 
 import com.github.plunk.alchemypersona.joinmessages.managers.MessageManager;
 import com.github.plunk.alchemypersona.joinmessages.gui.MessageMenuManager;
-import com.github.plunk.alchemypersona.joinmessages.gui.GUIOptions;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Bukkit;
@@ -69,15 +68,12 @@ public class AlchemyPersona extends JavaPlugin {
 
         loadModuleConfigs();
 
-        // 1. Initialize Nicknames
         nicknameManager = new NicknameManager(this);
         nicknameManager.loadNicknames();
         registerNicknameCommands();
         registerImportCommand();
         getServer().getPluginManager().registerEvents(new PlayerListener(this, nicknameManager), this);
-        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new NicknameExpansion(this, nicknameManager).register();
-        }
+        
         startWebServer();
         getServer().getScheduler().runTaskTimerAsynchronously(this,
                 () -> sessions.entrySet().removeIf(e -> System.currentTimeMillis() > e.getValue().expiresAt()),
@@ -103,7 +99,7 @@ public class AlchemyPersona extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new com.github.plunk.alchemypersona.tags.listeners.TagListener(this, tagManager), this);
         getServer().getPluginManager().registerEvents(tagsMenuManager, this);
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new TagsExpansion(this, tagManager).register();
+            new PersonaExpansion(this).register();
         }
 
         // 4. Initialize Join Messages

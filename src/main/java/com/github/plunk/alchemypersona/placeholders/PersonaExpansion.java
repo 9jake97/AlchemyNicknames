@@ -1,21 +1,18 @@
-package com.github.plunk.alchemypersona.nicknames.placeholders;
+package com.github.plunk.alchemypersona.placeholders;
 
 import com.github.plunk.alchemypersona.AlchemyPersona;
-import com.github.plunk.alchemypersona.nicknames.managers.NicknameManager;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
-public class NicknameExpansion extends PlaceholderExpansion {
+public class PersonaExpansion extends PlaceholderExpansion {
 
     private final AlchemyPersona plugin;
-    private final NicknameManager nicknameManager;
 
-    public NicknameExpansion(AlchemyPersona plugin, NicknameManager nicknameManager) {
+    public PersonaExpansion(AlchemyPersona plugin) {
         this.plugin = plugin;
-        this.nicknameManager = nicknameManager;
     }
 
     @Override
@@ -42,18 +39,33 @@ public class NicknameExpansion extends PlaceholderExpansion {
     public String onRequest(OfflinePlayer player, @NotNull String params) {
         if (player == null) return "";
 
+        // Nicknames
         if (params.equalsIgnoreCase("nickname")) {
-            String nick = nicknameManager.getNickname(player.getUniqueId());
+            String nick = plugin.getNicknameManager().getNickname(player.getUniqueId());
             return nick != null ? nick : player.getName();
         }
 
         if (params.equalsIgnoreCase("displayname")) {
-            String nick = nicknameManager.getNickname(player.getUniqueId());
+            String nick = plugin.getNicknameManager().getNickname(player.getUniqueId());
             if (nick == null) return player.getName();
-            
-            Component component = nicknameManager.parseNickname(nick);
-            // Convert to legacy section (§) for PAPI/other plugins
+            Component component = plugin.getNicknameManager().parseNickname(nick);
             return LegacyComponentSerializer.legacySection().serialize(component);
+        }
+
+        // Tags
+        if (params.equalsIgnoreCase("tag")) {
+            return plugin.getTagManager().getPlayerTagDisplay(player.getUniqueId());
+        }
+
+        if (params.equalsIgnoreCase("tag_id")) {
+            String id = plugin.getTagManager().getPlayerTagId(player.getUniqueId());
+            return id != null ? id : "";
+        }
+
+        // Pins
+        if (params.equalsIgnoreCase("pin")) {
+            String pin = plugin.getPinManager().getCurrentPin(player.isOnline() ? player.getPlayer() : null);
+            return pin != null ? pin : "";
         }
 
         return null;
