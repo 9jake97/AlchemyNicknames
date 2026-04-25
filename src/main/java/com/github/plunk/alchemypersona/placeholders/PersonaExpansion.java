@@ -13,6 +13,7 @@ public class PersonaExpansion extends PlaceholderExpansion {
 
     public PersonaExpansion(AlchemyPersona plugin) {
         this.plugin = plugin;
+        plugin.getLogger().info("PersonaExpansion initialized and ready for registration.");
     }
 
     @Override
@@ -37,6 +38,10 @@ public class PersonaExpansion extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer player, @NotNull String params) {
+        if (params.equalsIgnoreCase("check")) {
+            return "Expansion is alive!";
+        }
+
         if (player == null) return "";
 
         // Nicknames
