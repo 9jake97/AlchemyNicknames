@@ -197,9 +197,19 @@ public class AlchemyPersona extends JavaPlugin {
     public FileConfiguration getJoinMessagesConfig() { return joinMessagesConfig; }
 
     private void startWebServer() {
+        if (server != null) return;
+
         int port = getConfig().getInt("web.port", 8085);
+        
+        // Force-initialize Jackson to prevent "zip file closed" errors during lazy loading
+        io.javalin.json.JavalinJackson jackson = new io.javalin.json.JavalinJackson();
+        
         server = io.javalin.Javalin.create(config -> {
-            config.bundledPlugins.enableCors(cors -> cors.addRule(it -> it.anyHost()));
+            config.showJavalinBanner = false;
+            config.jsonMapper(jackson); // Use the pre-initialized mapper
+            config.bundledPlugins.enableCors(cors -> {
+                cors.addRule(it -> it.anyHost());
+            });
         });
 
         server.get("/health", ctx -> ctx.result("AlchemyPersona API is UP"));
